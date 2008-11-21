@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+      <extension point="org.eclipse.ui.ide.projectNatureImages">
+            <image icon="icons/meandreNature.gif" 
+                   natureId="org.meandre.ide.eclipse.component.builder.meandrenature" 
+                   id="org.meandre.ide.eclipse.component.builder.meandrenatureimage">
+             </image>
+      </extension>
+   
+   
+   
+   <extension
+         point="org.eclipse.ui.popupMenus"> 
+      <objectContribution
+            objectClass="java.lang.Object"
+            nameFilter="*.java"
+            id="org.meandre.ide.eclipse.component.contribution2">
+         <menu
+               label="Meandre Component"
+               path="additions"
+               id="org.meandre.ide.eclipse.component.menu1">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               label="Create Descriptor"
+               class="org.meandre.ide.eclipse.component.popup.actions.CreateDescriptorAction"
+               menubarPath="org.meandre.ide.eclipse.component.menu1/group1"
+               enablesFor="1"
+               id="org.meandre.ide.eclipse.component.newAction">
+         </action>
+         <action
+               label="Find Component Dependency"
+               class="org.meandre.ide.eclipse.component.popup.actions.FindComponentDependencyAction"
+               menubarPath="org.meandre.ide.eclipse.component.menu1/group1"
+               enablesFor="1"
+               id="org.meandre.ide.eclipse.component.newAction2">
+         </action>
+           <action
+               label="Install Component"
+               class="org.meandre.ide.eclipse.component.popup.actions.InstallComponentAction"
+               menubarPath="org.meandre.ide.eclipse.component.menu1/group1"
+               enablesFor="+"
+               id="org.meandre.ide.eclipse.component.newAction3">
+         </action>
+         
+          
+         
+      </objectContribution>
+      
+
+
+         <objectContribution
+              id="org.meandre.ide.eclipse.component.contribution3"
+              nameFilter="*.rdf"
+              objectClass="org.eclipse.core.resources.IFile">
+                  <menu
+               label="Meandre Component"
+               path="additions"
+               id="org.meandre.ide.eclipse.component.menu2">
+            		<separator
+                  name="group1">
+           		 </separator>
+       			 </menu>
+               <action
+               label="Install Non Java Component"
+               class="org.meandre.ide.eclipse.component.popup.actions.InstallNonJavaComponentAction"
+               menubarPath="org.meandre.ide.eclipse.component.menu2/group1"
+               enablesFor="1"
+               id="org.meandre.ide.eclipse.component.newAction4">
+         </action>
+         
+      </objectContribution>  
+      
+      
+      
+            <objectContribution
+              id="org.meandre.ide.eclipse.component.contribution4"
+              nameFilter="*.zz"
+              objectClass="org.eclipse.core.resources.IFile">
+               <menu
+               label="Meandre Component"
+               path="additions"
+               id="org.meandre.ide.eclipse.component.menu2">
+            		<separator name="group1">
+                 
+           		 </separator>
+       			 </menu>
+               <action
+               label="Compile ZZ script to MAU"
+               class="org.meandre.ide.eclipse.component.popup.actions.CreateMAUAction"
+               menubarPath="org.meandre.ide.eclipse.component.menu2/group1"
+               enablesFor="1"
+               id="org.meandre.ide.eclipse.component.newAction4">
+         </action>
+       </objectContribution>  
+      
+          <objectContribution
+              id="org.meandre.ide.eclipse.component.contribution5"
+              nameFilter="*.mau"
+              objectClass="org.eclipse.core.resources.IFile">
+              <menu
+               label="Meandre Component"
+               path="additions"
+               id="org.meandre.ide.eclipse.component.menu2">
+            		<separator name="group1">
+                 
+           		 </separator>
+       			 </menu>
+               <action
+               label="Run MAU as Flow Locally"
+               class="org.meandre.ide.eclipse.component.popup.actions.RunMAUAction"
+               menubarPath="org.meandre.ide.eclipse.component.menu2/group1"
+               enablesFor="1"
+               id="org.meandre.ide.eclipse.component.newAction5">
+         </action>
+       </objectContribution>  
+       
+     <!--   	  objectClass="java.lang.Object"
+      		      ADDED JULY 10th 
+               
+      -->  
+       <viewerContribution
+            targetID="#CompilationUnitEditorContext"
+            id="org.meandre.ide.eclipse.component.contribution22"
+               nameFilter="*.java"
+            >
+         <menu
+               label="Meandre Component"
+               path="additions"
+               id="org.meandre.ide.eclipse.component.menu1">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+            <menu
+               label="Meandre Component"
+               path="additions"
+               id="org.meandre.ide.eclipse.component.menu1">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               label="Create Descriptor"
+               class="org.meandre.ide.eclipse.component.popup.actions.CreateDescriptorAction"
+               menubarPath="org.meandre.ide.eclipse.component.menu1/group1"
+               id="org.meandre.ide.eclipse.component.newAction">
+         </action>
+         <action
+               label="Find Component Dependency"
+               class="org.meandre.ide.eclipse.component.popup.actions.FindComponentDependencyAction"
+               menubarPath="org.meandre.ide.eclipse.component.menu1/group1"
+               id="org.meandre.ide.eclipse.component.newAction2">
+         </action>
+           <action
+               label="Install Component"
+               class="org.meandre.ide.eclipse.component.popup.actions.InstallComponentAction"
+               menubarPath="org.meandre.ide.eclipse.component.menu1/group1"
+               id="org.meandre.ide.eclipse.component.newAction3">
+         </action>
+         
+          
+       
+            
+            </viewerContribution>
+       
+      
+      <!-- END ADDED JULY 10th-->
+      
+      
+      </extension>
+     
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            class="org.meandre.ide.eclipse.component.properties.SamplePropertyPage"
+            id="org.meandre.ide.eclipse.component.properties.samplePropertyPage"
+            name="Sample Page"
+            nameFilter="*.*"
+            objectClass="org.eclipse.core.resources.IFile">
+      </page>
+   </extension>
+   
+   
+    <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Meandre Development"
+            id="org.meandre.ide.eclipse.component">
+      </category>
+      <view
+            name="Meandre Component View"
+            icon="icons/meandreView.gif"
+            category="org.meandre.ide.eclipse.component"
+            class="org.meandre.ide.eclipse.component.views.MeandreComponentView"
+            id="org.meandre.ide.eclipse.component.views.MeandreComponentView">
+      </view>
+   </extension>
+    <extension
+          point="org.eclipse.ui.preferencePages">
+       <page
+             class="org.meandre.ide.eclipse.component.preferences.MeandrePreferencePage"
+             id="org.meandre.ide.eclipse.component.preferences.MeandrePreferencePage"
+             name="Meandre Preferences">
+       </page>
+    </extension>
+    <extension
+          point="org.eclipse.core.runtime.preferences">
+       <initializer
+             class="org.meandre.ide.eclipse.component.preferences.PreferenceInitializer">
+       </initializer>
+    </extension>
+
+
+<extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="toc.xml"
+            primary="true">
+      </toc>
+      <toc
+            file="tocgettingstarted.xml">
+      </toc>
+      
+       <toc
+            file="tocquickstart.xml">
+      </toc>
+      
+        <toc
+            file="toclicense.xml">
+      </toc>
+</extension>
+
+
+<extension
+      point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+      targetID="org.eclipse.ui.javaPerspective">
+      <view
+      		relative="org.eclipse.ui.views.TaskList"
+      		visible="true"
+      		relationship="stack"
+      		id="org.meandre.ide.eclipse.component">
+      </view>
+      </perspectiveExtension>
+      
+</extension>
+<extension
+      point="org.eclipse.ui.decorators">
+   <decorator
+         adaptable="true"
+         class="org.meandre.ide.eclipse.component.decorators.ZZFiles"
+         id="org.meandre.ide.eclipse.component.decorators.ZZFiles"
+         label="ZZ-File Decorator"
+         lightweight="true"
+         state="true">
+      <enablement>
+    
+               <objectClass
+                     name="org.eclipse.core.resources.IFile">
+               </objectClass>
+           
+      </enablement>
+   </decorator>
+   
+    <decorator
+         adaptable="true"
+         class="org.meandre.ide.eclipse.component.decorators.MAUFiles"
+         id="org.meandre.ide.eclipse.component.decorators.MAUFiles"
+         label="MAU-File Decorator"
+         lightweight="true"
+         state="true">
+      <enablement>
+                <objectClass
+                     name="org.eclipse.core.resources.IFile">
+               </objectClass>
+      </enablement>
+   </decorator>
+</extension>
+    
+   
+     <extension
+       point="org.eclipse.jdt.core.classpathContainerInitializer">
+      <classpathContainerInitializer
+          id="org.meandre.MEANDRE_INFRASTRUCTURE"
+          class="org.meandre.ide.eclipse.classpathcontainer.MeandreContainerInitializer"/>
+   </extension>
+   
+   <extension 
+       point="org.eclipse.jdt.ui.classpathContainerPage">
+      <classpathContainerPage
+          id="org.meandre.MEANDRE_INFRASTRUCTURE"
+          name="Meandre Infrastructure Container"
+          class="org.meandre.ide.eclipse.classpathcontainer.MeandreContainerPage"/>
+   </extension>  
+    
+    <extension point="org.eclipse.ui.newWizards">
+	<category
+	  name="Meandre"
+	  id="org.meandre.ide.eclipse.component">
+    </category>
+ 	<wizard
+      name="Meandre Component Project"
+	  icon="icons/meandreView.gif"
+	  category="org.meandre.ide.eclipse.component"
+	  class="org.meandre.ide.eclipse.component.wizard.NewComponentProjectWizard"
+	  project="true"
+	  id="org.meandre.ide.eclipse.new.component.new">
+      <description>Create a new Component Project</description>
+	  <selection class="org.eclipse.core.resources.IResource"/>
+	</wizard>
+	
+  </extension>
+    
+    
+     <extension point="org.eclipse.ui.popupMenus">
+                <objectContribution
+              objectClass="org.eclipse.core.resources.IFolder"
+                    id="org.meandre.ide.eclipse.component.wizard.popup1"
+                    nameFilter="*"
+                    adaptable="true"
+                    >
+               <menu
+               label="Meandre Component"
+               path="additions"
+               id="org.meandre.ide.eclipse.component.menu1">
+            	<separator
+                  name="group1">
+            	</separator>
+        	 </menu>
+             <action label="Install Components Wizard"
+                      icon="icons/create.gif"  
+                      class="org.meandre.ide.eclipse.component.wizard.dependency.CreateWizardAction"
+                      id="org.meandre.ide.eclipse.component.wizard.dependency.CreateWizardAction1"
+                      menubarPath="org.meandre.ide.eclipse.component.menu1/group1"
+              >
+               </action>
+               </objectContribution>
+        </extension>
+
+
+</plugin>

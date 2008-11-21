@@ -1,0 +1,146 @@
+Release 1.0.0
+#1 Provides Create Descriptor popup action [DONE] March 8th 2008
+#2 Detect Dependency functionality. [DONE] March 9th 2008
+#3 Upload Component to a Meandre Server. [DONE] March 10th 2008
+#4 Display the messages on to the console. [DONE] March 11th 2008
+#5 Display all the components present in a server and then allow user to click on a component look at the properties and 
+remove the component.[DONE] March 23rd 2008
+#6 Display the Java source of the components retrieved from the server.[DONE] March 23rd 2008
+#7 Added support for deploying  single component in a jar. [DONE] March 23rd 2008
+#8 Added support for IVY and other Classpath containers. [DONE] March 24th 2008
+#9 Supports meandre component projects that depend on other projects -The source code for the component should
+be in one project [DONE] March 24th 2008
+#10 Attach a progress monitor/dialog for the detecting  dependencies -uploading the components [DONE] March 24th 2008
+#11 The refresh component view should be asynchronous and not on a timer thread [DONE] March 27th 2008
+#12 Option for Omitting certain Classpath containers like Aspect J [DONE] March 24th 2008
+#13 Better Error notification. [DONE] March 27th 2008 +1
+#14 Option of including the component source in the component jar. [DONE] March 28th 2008 
+#15 The Component dependencies that are explicitly listed like in DataSourceComponent are not being 
+picked up. [DONE] March 28th 2008 
+#16 Allow for the resource files (like velocity, *.properties etc.) to be discovered and added the same way as the 
+jar dependencies [DONE] March 29th 2008
+#17 The popup action classes need to be refactored to separate classes [DONE] March 29th 2008 +1
+#24 Icon to indicate which jar file has the component code. [DONE] March 31st 2008
+#26 Option of including the component jar dependency list in the MANIFEST and MD5 for the jar and 
+the component jar. [DONE] March 30th 2008
+#27 Meandre Core Plugin support for the jar MD5 and properties. [DONE] March 30th 2008
+#30 Write help for the plugin [DONE] +1
+#31 Icons for refresh components, open source and delete component [DONE] March 31st 2008
+#33 The popup menu should be context sensitive [DONE] April 15th 2008
+#34 Download the component rdf  from the server. [DONE] March 31st 2008.
+-Use /services/repository/describe_component.rdf?uri= component uri to get the rdf and then download the jar files
+#35 plugin/jar/${jar name}/info is being called for the empty string [DONE] March 31st 2008
+#36 If a resource or a dependency explicitly listed in the @Component is not found while
+doing a component Install -the action should inform and ask user to cancel the upload. 
+[DONE] March 31st 2008
+#37 Auto refresh the Meandre Tree viewer once a component is added or removed. [DONE] March 31st 2008
+#38 The Tree viewer does not remember the selected item and upon refresh it should be expanded. 
+[BUG] 0 Not fully resolved
+=============1.0.0============= 31st March 2008===================================
+#39 The GetRepsitoryJob now shows a message if the server is not running. [DONE] April 3rd 2008
+==============1.0.1============ 3rd April 2008===================================
+#44 Added supported for Lisp [DONE] April 10th 2008 
+#40 The GetRepositoryJob would cause an exception if the meandre view was not being displayed or docked [DONE] April 9th 2008.
+#41 Updated the help file documenting how to install component that has an applet. [DONE] April 9th 2008
+==============1.0.2============ 10th April 2008===================================
+#45 Non java Components and repositories need to be supported. [DONE]  April 10th 2008
+#46 Updated help files about these components. [Done] April 10th 2008.
+#49 Install LISP/PYTHON components that do not have any jars -only has rdf [DONE] April 15th 2008
+#51 Support Data typing in the MANIFEST file. [DONE] April 15th 2008
+#52 Help File for the non java component install. [DONE] April 15th 2008 
+==============1.0.3============ 15th April 2008===================================
+#43 The upload component task is pretty slow... The jar description that is retrieved should be done for all  the jars in a component not one at a time -a hashmap can be used to store these values so that repeated gets 
+are not done. [DONE] +1 April 15th 2008
+#48 The preferences does not come into affect if the URL of the server is changed. [DONE] April 15th 2008. +1 
+#50 Display data types for the component Input/Output [DONE ]April 16th 2008 +1
+#53 Reset the preference directory to user.home. [DONE] April 15th 2008 +1
+#54 Add Meandre Component View to the default Java Perspective using Perspective extn. [DONE] April 15th 2008 +1
+#55 Dbl click should expand and collapse the tree [DONE] April 16th 2008 +1
+#56 Component should display the date published and the Creator. [DONE] April 16th 2008.
+#58 Remove the format information from the component -the icons inform that. [DONE] April 16th 2008.
+==============1.0.4============ 17th April 2008===================================
+#60 Support for mau and zigzag compiler. [DONE] April 17th 2008
+#61 Custom icons for mau and zz files. [DONE] April 17th 2008
+#62 Modify the core about service to return the list of plugins [DONE] April 17th 2008.
+==============1.0.5=============18th April 2008====================================
+BUG FIXes or Windows
+==============1.0.6=============20th April 2008====================================
+BUG FIXes or Windows
+==============1.0.7=============1st May 2008=======================================
+#68 Bug -an exception is thrown if a java component does not have any jar files (like demo components) 
+[DONE] April 29th 2008 +1 http://support.lis.uiuc.edu/amitku/tmp/loretta-bug-eclipse-28thApril.log -Reported by loretta
+#71 Fixed a bug where component jar with space in the names was being created [DONE] -May 12th 2008
+==============1.0.8=============12th May 2008=======================================
+#72 Removed the hover listener -it did not really work and left shadows [DONE] -May 17th 2008
+==============1.0.9=============17th May 2008=======================================
+#63 The plugin should check at the startup if the required servlet is running in the Meandre
+Core or not. [DONE] June 1st 2008 -The only modification made is that the check is done at the
+time when user presses update button -this is consisistent in the way we are interacting with the
+infrastructure
+#70 Do a check for Java version -only support for JDK 1.5 [DONE] June 1st 2008
+#73 Display the list of plugins and the core server version. [DONE] June 1st 2008
+#74 InstallComponent function did not work when used on the FileEditor -this has been fixed 
+in the this version -Requested by Xavier, Loretta and Kazu [DONE] June 1st 2008
+#75 Other component and mau actions now show a message if the menu operation is carried
+out on any other view other than package explorer [DONE] June 1st 2008
+#69 There is a bug in determining the input data type if the value is being assigned to a 
+class variable.  
+Take a look at the HelloWorldWebComponent April 29th 2008 
+-Fixed in the Meandre-Component-Devkit [DONE] June 1st 2008
+#67 If the component project is not in a compile state -complain and ask user to clean build
+-Reported on April 28th 2008 +1 -Duane's issue [DONE] June 1st 2008
+#66 Show an icon or some way to differentiate between WebUIFragment components and other components. 
+April 21st 2008 +1 [DONE] June 2nd 2008
+#76 Support for Meandre-Infrastructure Classpath container with different versions [DONE] -June 5th 2008
+#77 Support for New Meandre Component Project Wizard along with sample components [DONE] -June 6th 2008
+#28 Custom classpath container for the Meandre components [WILL NOT DO] [DONE] - June 6th 2008
+#78 Support for Applet packaging for a web based component [DONE] -June 10th 2008
+#57 Move the component full package name to the jar file with the source code. [WILL NOT DO] April 16th 2008. [DONE] June 10th 2008
+#84 Forced upgrade to new MeandreClient by Peter Took 5 hours to remove my crud [DONE] June 10th 2008
+#85 Added help files for all the new features including zz->mau [DONE] June 12th.
+#64 Help file for zz->mau [TODO] April 20th 2008 [DONE] June 12th.
+#79 Document the new features -Applet support [TODO] June 10th 2008
+==============1.1.0=============12th June 2008=======================================
+removed dependency on the the meandre-component-devkit; Included the source in the plugin codebase.
+==============1.1.1=============13th June 2008=======================================
+#95 Update library [DONE]  July 8th
+==============1.2.0=============8th July 2008========================================
+#94 Create MAU file task is busted. -[CRITICAL]-resolved July 10th
+#86 Activator presently opens http connections -it should not [CRITICAL] June 13th 2008. 
+-resolved 10th of July
+#91 The Meandre component menu does not show up in the editor window -[CRITICAL] July 4th 2008 
+-David noticed this resolved 11th of July.
+#88 Allow component upload for all the components found in a package/directory 
+-Requested by David Tcheng and Lorretta [CRITICAL] June19th 2008 DONE [July 13th]
+#93 Update the sample code with annotation based component. -[CRITICAL] July 4th DONE [July 14th]
+#90 When a Component property input/output port name has "." or other non alpha numeric character in it; the 
+install component does not complain -it silently aborts. 
+The failure is in making the MANIFEST file- [CRITICAL] July 4th -2008 [DONE] July 14th 2008
+#89 When a project does not have the src folder setup correctly -i.e. it is a java project but the component 
+src is in non java src directory -the application bombs without any message. [DONE] July 14th 2008
+-Displays a message on the console.
+#80 Clean up the InstallComponentRunnable Class [TODO] June 10th 2008 [DONE] July 13th 2008
+#81 Convert the InstallComponentRunnable to be a Wizard based component with more interaction. [TODO] June 10th 2008 
+-DONE July 13th
+#97 Added License text [DONE] July 14th
+#98 Updated the Help file with wizard help [DONE] July 14th
+==============1.2.1=============14th July 2008=======================================
+#100 Can you add a scrollbar to the first list of directories?? If you add   too many directories, then the rest of the functionality is no longer  viewable...
+[] Loretta -July 18th 2008  DONE September 5th 2008
+#101 When a component class is in the project classpath library, it screws up the the plugin and the jar file for the applet (if applet class is in the classpath)
+is not created and if the component is a simple non applet component -the component jar is not created either
+-To resolve this issue check for the availability of the class in the project library classpath and give user the option to remove the offending jar file.
+September 5th 2008 [CRITICAL] DONE September 5th 2008
+#102 When two jar files with the same name exist in the classpath or are discovered as dependencies
+ September 5th 2008 [CRITICAL] DONE September 10th 2008
+ java.util.zip.ZipException: duplicate entry: lib/tree-applet-0.0.1.jar
+	at java.util.zip.ZipOutputStream.putNextEntry(ZipOutputStream.java:163)
+	at java.util.jar.JarOutputStream.putNextEntry(JarOutputStream.java:90)
+	at org.meandre.ide.eclipse.utils.ComponentNatureHandler.createAppletJar(ComponentNatureHandler.java:276)
+	at org.meandre.ide.eclipse.utils.ComponentNatureHandler.getComponentAppletBean(ComponentNatureHandler.java:117)
+	at org.meandre.ide.eclipse.component.popup.actions.InstallComponentRunnable.run(InstallComponentRunnable.java:358)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:121)
+#103 Support for MONK Version of the component library September 6th 2008 [CRITICAL] DONE September 10th 2008
+#106 On the installation summary, can you go ahead and list the components that didn't get installed [DONE] October 3rd 2008; Nov 17th 2008 Loretta
+#104 Add a select all components checkbox [TODO] October 3rd 2008 -Loretta [DONE] November 17th 2008
+ 
