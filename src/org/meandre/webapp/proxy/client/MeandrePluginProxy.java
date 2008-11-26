@@ -42,12 +42,17 @@ public class MeandrePluginProxy extends MeandreProxy{
 
 	public MeandrePluginProxy(String user, String passwd, String serverHost,
 			int serverPort) {
-		super(user, passwd, serverHost, serverPort);
+		super();
+		//super(user, passwd, serverHost, serverPort);
 		this.user=user;
 		this.passwd = passwd;
 		this.serverHost=serverHost;
 		this.serverPort = serverPort;
 		setServerUrl();
+	}
+	
+	public void update(){
+		super.update(user,passwd, serverHost, serverPort);
 	}
 	
 

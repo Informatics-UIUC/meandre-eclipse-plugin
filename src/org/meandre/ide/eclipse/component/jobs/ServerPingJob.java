@@ -33,7 +33,11 @@ public class ServerPingJob extends Job {
 	protected IStatus run(IProgressMonitor monitor) {
 		monitor.beginTask("Checking if Meandre Server is available: ", 1);
 		boolean isConnected = Boolean.FALSE;
+		try{
 		isConnected=meandreProxy.ping();
+		}catch(Exception ex){
+			MeandreLogger.logInfo("Error  -could not ping server " + ex.getMessage());	
+		}
 		Activator.isConnected = isConnected;
 		if(!isConnected)
 		MeandreLogger.logWarning("Could not connect to the Meandre Server");

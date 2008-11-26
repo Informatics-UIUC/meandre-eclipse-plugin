@@ -53,16 +53,27 @@ public class GetRepositoryJob extends UIJob {
 	public IStatus runInUIThread(IProgressMonitor monitor) {
 		monitor.beginTask("Get Repository ", 1);
 		boolean isConnected = Boolean.FALSE;
+		try{
 		isConnected=meandreProxy.ping();
+		}catch(Exception ex){
+			MeandreLogger.logInfo("Could not ping "+ ex.getMessage());
+		}
 		//MeandreLogger.logInfo("Getting Repository "+ isConnected);
 		//System.out.println("Getting Repository "+ isConnected);
 		Activator.isConnected = isConnected;
 		if(!isConnected){
 		MeandreLogger.logInfo("Can ping server: "+ isConnected);	
 		}
+		try{
 		if(isConnected){
 			MeandreLogger.logInfo("calling update server version");
 			meandreProxy.getServerVersion();
+			
+			try{
+				Activator.meandreServerVersion=meandreProxy.getServerVersion();
+				}catch (Exception ex){
+					MeandreLogger.logInfo("Could not get server version: " + ex.getMessage());		
+			}
 		
 			MeandreLogger.logInfo("calling update server plugins");
 			meandreProxy.updateServerPlugins();
@@ -88,9 +99,11 @@ public class GetRepositoryJob extends UIJob {
 			MeandreLogger.logInfo("Getting Repository "+ isConnected + " cannot get repository " + meandreProxy.getServerUrl());
 			showMessage(" Cannot get repository " + meandreProxy.getServerUrl() + " the server is not running.");
 		}
-		
+		}catch(Exception ex){
+			MeandreLogger.logInfo("Error running get Repository job: " + ex.getMessage());	
+		}finally{
 		monitor.done();
-		
+		} 
 		
 		
 		//schedule(SLEEP_TIME);

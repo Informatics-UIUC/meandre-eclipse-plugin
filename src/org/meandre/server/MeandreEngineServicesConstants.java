@@ -17,8 +17,8 @@ package org.meandre.server;
  *
  */
 public class MeandreEngineServicesConstants {
-	public static final String ADD_REPOSITORY_URL_1_3 ="/services/repository/add.rdf";
-	public static final String ADD_REPOSITORY_URL_1_4 ="/services/repository/add.json";
+	public static final String ADD_REPOSITORY_URL_1_3 ="services/repository/add.rdf";
+	public static final String ADD_REPOSITORY_URL_1_4 ="services/repository/add.json";
 	public static final String SERVER_VERSION_URL =  "services/about/version.txt";
 	public static final String SERVER_PLUGIN_URL =  "services/about/plugins.json";
 	

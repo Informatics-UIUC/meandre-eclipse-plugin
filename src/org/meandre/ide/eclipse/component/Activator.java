@@ -75,7 +75,7 @@ public class Activator extends AbstractUIPlugin {
 	private static QueryableRepository repository=null;
 	private static FileSystemUtils fileSystemUtil = null;
 	private static ClasspathContainerUtils classpathContainerUtil=null;
-	private static String meandreServerVersion=null;
+	public static String meandreServerVersion=null;
 	
 	public static boolean isConnected = Boolean.FALSE;
 	
@@ -125,10 +125,14 @@ public class Activator extends AbstractUIPlugin {
 		String serverUrl=server;
 	
 		meandreProxy = new MeandrePluginProxy(username,password,serverUrl,port);
+		meandreProxy.update(username,password,serverUrl,port);
+		try{
 		meandreServerVersion=meandreProxy.getServerVersion();
+		}catch (Exception ex){
+			MeandreLogger.logInfo("Could not get server version: " + ex.getMessage());		
+		}
 		fileSystemUtil = new FileSystemUtils();
 		
-		//update();
 		MeandreLogger.logInfo("Starting MeandreIde Component: " +  this.getBundle().getHeaders().get("Bundle-Version") + "  version");
 	    repositoryJob = new GetRepositoryJob(GET_REP_JOB);
 		repositoryJob.setProxy(meandreProxy);
