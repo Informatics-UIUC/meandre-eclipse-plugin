@@ -34,6 +34,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.meandre.ide.eclipse.component.Activator;
+import org.meandre.ide.eclipse.component.logger.MeandreLogger;
 import org.meandre.ide.eclipse.component.preferences.PreferenceConstants;
 import org.meandre.ide.eclipse.utils.ComponentJarUtils;
 import org.meandre.ide.eclipse.utils.ComponentNatureHandler;
@@ -90,6 +91,13 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 	public void run(IProgressMonitor monitor)
 	throws InvocationTargetException, InterruptedException {
 		monitor.beginTask("Installing Component",100);
+		if(Activator.getServerVersion()==null){
+			MeandreLogger.logError("Error: Meandre Server not running?");
+			monitor.subTask("Aborting -The Meandre Server is not running.");
+			Thread.sleep(5000);
+			monitor.done();
+			return;
+		}
 
 		monitor.subTask("getting preferences");
 		String tmpFolder = System.getProperty("java.io.tmpdir");
@@ -536,7 +544,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						if (url.endsWith("/")) {
 							url = url.substring(0, url.length() - 1);
 						}
-
+					
 						if(Activator.getServerVersion().startsWith("1.3")){
 							url = url
 									+ ":"
