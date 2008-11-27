@@ -23,7 +23,7 @@ public class MeandreEngineServicesConstants {
 	public static final String SERVER_PLUGIN_URL =  "services/about/plugins.json";
 	
 	
-	public static final String DEFAULT_SERVER ="http://127.0.0.1";
+	public static final String DEFAULT_SERVER ="127.0.0.1";
 	public static final String DEFAULT_PORT ="1714";
 	public static final String DEFAULT_LOGIN = "admin";
 	public static final String DEFAULT_PASSWORD = "admin";
