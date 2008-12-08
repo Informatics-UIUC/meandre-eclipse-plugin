@@ -107,12 +107,12 @@ public class InstallNonJavaComponentAction implements IObjectActionDelegate {
 			if(Activator.getServerVersion().startsWith("1.3")){
 			url = url
 					+ ":"
-					+ port
+					+ port + "/"
 					+ MeandreEngineServicesConstants.ADD_REPOSITORY_URL_1_3;
 			}else{
 				url = url
 				+ ":"
-				+ port
+				+ port +"/"
 				+ MeandreEngineServicesConstants.ADD_REPOSITORY_URL_1_4;
 			}
 			String port_s = prefs
