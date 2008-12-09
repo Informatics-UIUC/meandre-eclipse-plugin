@@ -140,7 +140,8 @@ public class ComponentListPage extends WizardPage implements Listener{
 		selectAllButton = new Button(composite, SWT.CHECK);
 		selectAllButton.setText("Select All Components");
 		selectAllButton.setEnabled(false);
-		selectAllButton.addListener(SWT.CHECK, this);
+		selectAllButton.addListener(SWT.Selection, this); 
+	
 
 		// Create a smooth progress bar
 		progressBar = new ProgressBar(composite, SWT.HORIZONTAL | SWT.SMOOTH);
@@ -151,7 +152,7 @@ public class ComponentListPage extends WizardPage implements Listener{
 		findComponentButton = new Button(composite, SWT.PUSH);
 		findComponentButton.setText("Find");
 		findComponentButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_END));
-		findComponentButton.addListener(SWT.PUSH, this);
+		findComponentButton.addListener(SWT.Selection, this);
 		setControl(composite);	
 		addSelection();
 	}
@@ -300,6 +301,7 @@ public class ComponentListPage extends WizardPage implements Listener{
 	}
 
 	public void handleEvent(Event event) {
+		System.out.println("----->"+event);
 		Status status = new Status(IStatus.OK, "not_used", 0, "", null);
 		if(event.widget== selectAllButton){
 			boolean itemStatus =((Button)event.widget).getSelection();//          ((TableItem)event.item).getChecked();

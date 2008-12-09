@@ -196,7 +196,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 		installComponentButton = new Button(composite, SWT.PUSH);
 		installComponentButton.setText("Install");
 		installComponentButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_END));
-		installComponentButton.addListener(SWT.PUSH, this);
+		installComponentButton.addListener(SWT.Selection, this);
 
 		setControl(composite);
 		setPageComplete(true);
