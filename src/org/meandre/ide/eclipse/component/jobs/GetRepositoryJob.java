@@ -25,6 +25,7 @@ import org.meandre.core.repository.QueryableRepository;
 import org.meandre.ide.eclipse.component.Activator;
 import org.meandre.ide.eclipse.component.logger.MeandreLogger;
 import org.meandre.ide.eclipse.component.views.MeandreTreeViewer;
+import org.meandre.ide.eclipse.component.views.TreeViewContentProvider;
 
 import org.meandre.webapp.proxy.client.MeandrePluginProxy;
 
@@ -68,9 +69,11 @@ public class GetRepositoryJob extends UIJob {
 		if(isConnected){
 			MeandreLogger.logInfo("calling update server version");
 			meandreProxy.getServerVersion();
+			System.out.println(meandreProxy.getServerUrl());
 			
 			try{
 				Activator.meandreServerVersion=meandreProxy.getServerVersion();
+				
 				}catch (Exception ex){
 					MeandreLogger.logInfo("Could not get server version: " + ex.getMessage());		
 			}
@@ -94,6 +97,8 @@ public class GetRepositoryJob extends UIJob {
 				viewer.setSelection(selection);
 			}
 			viewer.expandToLevel(2);
+			TreeViewContentProvider ttv=(TreeViewContentProvider)viewer.getContentProvider();
+			ttv.getElements(null);
 			}
 		}else{
 			MeandreLogger.logInfo("Getting Repository "+ isConnected + " cannot get repository " + meandreProxy.getServerUrl());

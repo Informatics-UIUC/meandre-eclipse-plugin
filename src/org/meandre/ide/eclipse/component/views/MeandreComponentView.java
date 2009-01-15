@@ -77,7 +77,7 @@ public class MeandreComponentView extends ViewPart {
 		viewer.setLabelProvider(new ViewLabelProvider());
 		viewer.setSorter(new NameSorter());
 		viewer.setInput(getViewSite());
-
+		
 		makeActions();
 		hookContextMenu();
 		hookDoubleClickAction();

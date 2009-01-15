@@ -415,7 +415,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 						}
 					}else{
 						out.println("Cannot install this component: " + cn.extClass().getName() + " as it is present in the project" +
-						" library. Please remove the offending jar file from the classpath to install this component ");
+						" library. Please remove the offending jar file from the project classpath to install this component ");
 					}
 
 					

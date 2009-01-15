@@ -26,8 +26,10 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.templates.TemplateException;
 import org.meandre.ide.eclipse.component.Activator;
 import org.meandre.ide.eclipse.component.wizard.MeandreComponentProjectStatus;
+import org.meandre.ide.eclipse.utils.ClasspathContainerUtils;
 import org.meandre.ide.eclipse.utils.FileHelper;
 import org.meandre.ide.eclipse.utils.FolderHelper;
+import org.meandre.server.MeandreEngineServicesConstants;
 
 
 /**
@@ -39,7 +41,7 @@ import org.meandre.ide.eclipse.utils.FolderHelper;
 public class MeandreComponentProject {
     private String componentClassName = "com.example.MyComponent";
     private String componentType = "NonWebUIFragmentCallback";
-    private String meandreCoreVersion = "1.3.1 (1.3.1v)";
+    private String meandreCoreVersion =MeandreEngineServicesConstants.defaultLibraryString;
     private IJavaProject javaProject;
 
 

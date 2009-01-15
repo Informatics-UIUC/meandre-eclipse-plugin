@@ -20,6 +20,7 @@ import java.util.StringTokenizer;
 
 import org.meandre.ide.eclipse.classpathcontainer.ClasspathContainerMetadata;
 import org.meandre.ide.eclipse.component.logger.MeandreLogger;
+import org.meandre.server.MeandreEngineServicesConstants;
 
 /**Reads the server/lib path from the plugin install directory
  * and exposes the classpath containers made available.
@@ -29,6 +30,7 @@ import org.meandre.ide.eclipse.component.logger.MeandreLogger;
  *
  */
 public class ClasspathContainerUtils {
+	
 	boolean isValid;
 	String libDirectory;
 	ArrayList<ClasspathContainerMetadata> classpathContainers = new ArrayList<ClasspathContainerMetadata>(10);
@@ -120,7 +122,7 @@ public class ClasspathContainerUtils {
 	    
 	    if(ccm.getJarList().size()>0){
 	    String version = getVersionInfo(ccm.getName());	
-	    if(version.equalsIgnoreCase("1.3")){
+	    if(version.equalsIgnoreCase( MeandreEngineServicesConstants.defaultLibraryStringShort)){
 	    	ccm.setDefaultContainer(Boolean.TRUE);
 	    }
 	   

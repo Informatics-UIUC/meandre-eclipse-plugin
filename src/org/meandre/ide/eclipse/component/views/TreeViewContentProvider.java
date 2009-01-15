@@ -81,7 +81,7 @@ ITreeContentProvider{
 	private void initialize() {
 	
 		if(Activator.getQueryableRepository() != null){
-			
+		System.out.println(Activator.getMeandreServer());
 		TreeParent root = new TreeParent(Activator.getMeandreServer()+ " "+Activator.getMeandreProxy().getServerVersion() +" "+ " [Logged in as: " + Activator.getLogin() + "] "
 				+  Activator.getQueryableRepository().getAvailableExecutableComponentDescriptions().size() 
 				+ " components and "+ Activator.getMeandreProxy().getServerPlugins().size()+ " plugins " +
@@ -237,7 +237,7 @@ ITreeContentProvider{
 		}else{	
 		serverName = Activator.getMeandreServer().substring(serverStart+3);
 		}
-		
+		System.out.println(serverName);
 		if(Activator.getMeandreServer().startsWith("localhost") ||
 			Activator.getMeandreServer().startsWith("127.0.0.1") ){
 			server.setLocalServer(Boolean.TRUE);	

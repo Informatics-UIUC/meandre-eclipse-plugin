@@ -218,7 +218,6 @@ public class Activator extends AbstractUIPlugin {
 		
 		
 		if(updateProxy){
-			
 			meandreProxy.close();
 			System.out.println("Updating the server information.");
 			MeandreLogger.logError("");

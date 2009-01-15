@@ -143,4 +143,16 @@ September 5th 2008 [CRITICAL] DONE September 5th 2008
 #103 Support for MONK Version of the component library September 6th 2008 [CRITICAL] DONE September 10th 2008
 #106 On the installation summary, can you go ahead and list the components that didn't get installed [DONE] October 3rd 2008; Nov 17th 2008 Loretta
 #104 Add a select all components checkbox [TODO] October 3rd 2008 -Loretta [DONE] November 17th 2008
+ ==============1.2.5===============November 24th 2008============================================
+ #107 Removed some dependencies that were not being used. -In order to resolve Mike's issue
+ with svn plugin.
+ ==============1.2.6===============December 24th 2008============================================
+ #108 Bug fix -the server node was not changing when new server was added.
+ #109 Default classpath set to 1.4 and fixed a bug where the classpath had 1.3 libraries even
+ when the user would choose 1.4 classpath container
+ #110 Updated documentation -replaced some images and updated the applet installation page
+ #111 Updated Jar libraies in the classpath container to 1.4 version of Meandre Server
+ ==============1.2.7=====================Jan 13th 2009===========================================
+ #112 Reconciled documentation that Loretta had done on the seasr website.
+ ==============1.2.7 -rereleae=====================Jan 15th 2009===========================================
  

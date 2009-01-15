@@ -53,7 +53,24 @@ public class MeandrePluginProxy extends MeandreProxy{
 	
 	public void update(){
 		super.update(user,passwd, serverHost, serverPort);
+		setServerUrl();
 	}
+	
+	public void update ( String sUser, String sPasswd, String sServerHost,
+			int iServerPort ){
+		this.user=sUser;
+		this.passwd = sPasswd;
+		this.serverHost=sServerHost;
+		this.serverPort = iServerPort;
+		setServerUrl();
+		try{
+		super.update(sUser,sPasswd, sServerHost, iServerPort);
+		}catch(Exception ex){
+			System.out.println("Cannot connect: "+ ex.getMessage());
+		}
+	}
+	
+
 	
 
 	public void close() {

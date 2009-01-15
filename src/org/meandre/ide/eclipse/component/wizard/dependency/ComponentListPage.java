@@ -301,7 +301,6 @@ public class ComponentListPage extends WizardPage implements Listener{
 	}
 
 	public void handleEvent(Event event) {
-		System.out.println("----->"+event);
 		Status status = new Status(IStatus.OK, "not_used", 0, "", null);
 		if(event.widget== selectAllButton){
 			boolean itemStatus =((Button)event.widget).getSelection();//          ((TableItem)event.item).getChecked();
