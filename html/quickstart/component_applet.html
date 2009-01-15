@@ -6,17 +6,15 @@
   <body>
   <h3>Installing Meandre Component With Applet</h3>
 	<p>
-	To Install a component with an applet i.e. if the component needs to bundle an applet as an UI element,
-	
-	use the <i>@ComponentNatures</i> annotation. It provides an array of  <i>@ComponentNature</i> annotations (you can use <i>@ComponentNature</i> by 
-	itself -it would work as well), the extClass is the applet's main class and dependency attribute should only include jar files 
-	that cannot be auto discovered by jarjar library because of many reasons including Class.forName usage. In the example below  
+	To Install a component with an applet, use the <i>@ComponentNatures</i> annotation. It provides an array of  <i>@ComponentNature</i> annotations (you can use <i>@ComponentNature</i> by 
+	itself -that would work as well), the extClass attribute is the applet's main class. The dependency attribute should only include jar files 
+	that cannot be auto discovered by jarjar library because of reasons such as Class.forName use in the applet. In the example below  
 	com.applet.FooApplet.class is the Applet's main class (class with applet lifecycle functions), the dependency jar 
-   mysql-connector-java-3.0.15-ga-bin.jar" is used by the applet and is not autodetected by the jarjar library, thus it needs to be 
-   included in the list. This applet class might depend upon any number of other jars and any other class, those would be packaged along 
-   with the jar applet as a component dependency.
+   "mysql-connector-java-3.0.15-ga-bin.jar" is used by the applet and is not autodetected by the jarjar library, and it needs to be 
+   included in the dependency list. This applet class might depend upon any number of other jars and other classes, those would be packaged along 
+   with the jar applet as a component dependency automatically by the plugin.
    <br/>
-   You can have multiple applets in the same component and the plugin would package each in separate jar file -the name of the 
+   You can have multiple applets in the same component and the plugin would package each in separate jar file. The name of the 
    applet jar by convention is    Class.getName().replace(".class").append(".jar").toLowerCase(), in the example below the packaged 
    applet jar file will be named <b>org.monkproject.meandre.components.tests.fooapplet.jar</b>
 	
@@ -29,12 +27,12 @@
 	<br/>
 	<img src="images/meandre_applet.gif" alt="Meandre Component with applet"/>
 	</p>
-	<h4>Applet uses many images and other resources it uses -How can I do this without listing each one in the resource array?</h4>
+	<h4>Applet with many images and other resources -How can you install without listing each one in the resource array?</h4>
 	<p>
-	If an applet uses many images and resources like property files, velocity templates etc. it might be easier to jar those resources and add that 
+	If an applet uses many images and resources like property files, velocity templates etc. It would be easier to jar those resources and add that 
 	jar to the eclipse classpath and list the jar file name as a dependency in the @ComponentNature.dependency array.
 	In your applet use getClass().getResourceAsInputStream() to get the bytes and convert that into an imageicon or read it as a property file. 
-	The plugin does not create the jar file automatically for these resources -you would would have to create the jar and add it to the 
+	The plugin does not create the jar file automatically for these resources -you would have to create the jar and add it to the 
 	project classpath and list it in the dependency attribute.
 	</p>
 	
