@@ -13,6 +13,7 @@ package _PACKAGE_;
 import java.util.logging.Logger;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
@@ -32,6 +33,20 @@ import org.meandre.core.ExecutableComponent;
 		tags="test print hello")
 public class _CLASS_ implements ExecutableComponent {
 
+
+	@ComponentInput(description="First String", name="string_one")
+	final static String DATA_INPUT_1= "string_one";
+	
+	
+	@ComponentInput(description="Second String", name="string_two")
+	final static String DATA_INPUT_2= "string_two";
+	
+
+	@ComponentOutput(description="Output String", name="string_out")
+	final static String DATA_OUTPUT_1= "string_concated";
+
+	
+	// log messages are here
 	private Logger _logger;
 	
 	/** This method is invoked when the Meandre Flow is being prepared for 
@@ -54,12 +69,12 @@ public class _CLASS_ implements ExecutableComponent {
 
 	 */
 	public void execute(ComponentContext cc) throws ComponentExecutionException, ComponentContextException {
-		
-		String str1 = cc.getDataComponentFromInput("string_one").toString();
-		String str2 = cc.getDataComponentFromInput("string_two").toString();
-
-		cc.pushDataComponentToOutput("concatenated_string",str1+str2);
-		
+		String str1 = cc.getDataComponentFromInput(DATA_INPUT_1).toString();
+		_logger.info("Got String1: " + str1);
+		String str2 = cc.getDataComponentFromInput(DATA_INPUT_2).toString();
+		_logger.info("Got String2: " + str2);
+		_logger.info("Pushing out: " + str1+str2);
+		cc.pushDataComponentToOutput(DATA_OUTPUT_1,str1+str2);
 	}
 
 	/** This method is called when the Menadre Flow execution is completed.
