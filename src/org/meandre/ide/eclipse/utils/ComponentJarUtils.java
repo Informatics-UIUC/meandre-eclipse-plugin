@@ -1,12 +1,12 @@
 /*
  * @(#) ComponentJarUtils.java @VERSION@
- * 
+ *
  * Copyright (c) 2008, Board of Trustees-University of Illinois.
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html 
+ * http://www.eclipse.org/legal/epl-v10.html
  */
 package org.meandre.ide.eclipse.utils;
 
@@ -43,17 +43,23 @@ import com.tonicsystems.jarjar.DepFind;
 import com.tonicsystems.jarjar.DepHandler;
 
 /**Refractored code from InstallComponentRunnable
- * 
+ *
  * @author Amit Kumar
  * Created on Jul 12, 2008 2:20:16 AM
  *
  */
 public class ComponentJarUtils {
-	
-	
-	
+
+	ProjectSourceUtils projectSourceUtils;
+
+	public ComponentJarUtils(){
+		this.projectSourceUtils = new ProjectSourceUtils();
+	}
+
+
+
 	/**Returns the list of interfaces the class implements
-	 * 
+	 *
 	 * @param claszz
 	 * @return
 	 */
@@ -73,7 +79,7 @@ public class ComponentJarUtils {
 	public HashMap<String, String> getComponentPropertyDataType(Class claszz){
 
 		Field[] fields=claszz.getDeclaredFields();
-		HashMap<String, String> hm=new HashMap<String,String>(4); 
+		HashMap<String, String> hm=new HashMap<String,String>(4);
 		for(int i=0; i < fields.length;i++){
 			ComponentProperty cp=fields[i].getAnnotation(ComponentProperty.class);
 			if(cp!= null){
@@ -88,7 +94,7 @@ public class ComponentJarUtils {
 
 	public HashMap<String, String> getComponentInputDataType(Class claszz){
 		Field[] fields=claszz.getDeclaredFields();
-		HashMap<String, String> hm=new HashMap<String,String>(4); 
+		HashMap<String, String> hm=new HashMap<String,String>(4);
 		for(int i=0; i < fields.length;i++){
 			ComponentInput cp=fields[i].getAnnotation(ComponentInput.class);
 			if(cp!= null){
@@ -104,7 +110,7 @@ public class ComponentJarUtils {
 	public HashMap<String, String> getComponentOutputDataType(Class claszz){
 
 		Field[] fields=claszz.getDeclaredFields();
-		HashMap<String, String> hm=new HashMap<String,String>(4); 
+		HashMap<String, String> hm=new HashMap<String,String>(4);
 		for(int i=0; i < fields.length;i++){
 			ComponentOutput cp=fields[i].getAnnotation(ComponentOutput.class);
 			if(cp!= null){
@@ -118,21 +124,21 @@ public class ComponentJarUtils {
 	}
 
 
-	
-	
-	
+
+
+
 
 	/**Get the DataType from the component class
-	 * 
+	 *
 	 * @param filepath
 	 * @return
 	 */
 	public HashMap<String, MethodDataType> getDataType(String filepath){
-		ClassNode cn = new ClassNode(); 
+		ClassNode cn = new ClassNode();
 		ClassReader cr;
 		try {
 			cr = new ClassReader(getClassBytes(filepath));
-			cr.accept(cn, 0); 
+			cr.accept(cn, 0);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -144,7 +150,7 @@ public class ComponentJarUtils {
 	}
 
 
-	
+
 
 	private byte[] getClassBytes(String filepath) throws IOException {
 		File file = new File(filepath);
@@ -175,10 +181,10 @@ public class ComponentJarUtils {
 		return bytes;
 	}
 
-	
+
 
 	/**Finds the component dependencies transitively
-	 * 
+	 *
 	 * @param cp1
 	 * @param appClasspath
 	 * @param handler
@@ -220,26 +226,26 @@ public class ComponentJarUtils {
 
 
 	}
-	
+
 	/**
 	 * This function creates a component jar file; that has all the classes the
 	 * component depends upon
-	 * @param claszz 
-	 * 
+	 * @param claszz
+	 *
 	 * @param cp1
 	 * @param appClasspath
 	 * @param jarFile
 	 * @return
 	 * @throws IOException
 	 */
-	public boolean createComponentJar(Class claszz, 
+	public boolean createComponentJar(Class claszz,
 			String componentClass, String outputLocation,
 			String projectPath,String sourcePath,
 			String jarFile,ArrayList<String> resourceList,
-			String componentVersion, 
-			boolean storeSource,HashMap<String,String> classList,
-			ArrayList<IFile> sourceList) throws IOException {
-		
+			String componentVersion,
+			boolean storeSource,HashMap<String,String> classList)
+	throws IOException {
+
 		MessageConsole mc = Activator.findConsole(Activator.CONSOLE_NAME);
 		mc.activate();
 		MessageConsoleStream out = mc.newMessageStream();
@@ -247,7 +253,7 @@ public class ComponentJarUtils {
 		File outFile = new File(jarFile);
 		out.println("After outFile >" + jarFile);
 		out.println("Before creating DepHandler>>> " + componentClass);
-		
+
 		MeandreComponentDepHandler handler = new MeandreComponentDepHandler(
 				DepHandler.LEVEL_CLASS, componentClass);
 		out.println("After creating DepHandler " + componentClass);
@@ -255,7 +261,7 @@ public class ComponentJarUtils {
 		if (classList.keySet().size() == 0) {
 			return Boolean.FALSE;
 		}
-
+		ArrayList<IFile> sourceList = this.projectSourceUtils.getSourceList(outputLocation, classList);
 		String getInterfaceList = getInterfaceList(claszz);
 		HashMap<String,MethodDataType> hmDataType = getDataType(componentClass);
 		BufferedOutputStream bo = new BufferedOutputStream(new FileOutputStream(outFile));
@@ -296,7 +302,7 @@ public class ComponentJarUtils {
 
 			}
 		}
-		
+
 		componentProperties = getComponentOutputDataType(claszz);
 		if(componentProperties!=null){
 			Iterator its = componentProperties.keySet().iterator();
@@ -322,7 +328,7 @@ public class ComponentJarUtils {
 		BufferedInputStream bi = null;
 		JarEntry je = null;
 		// store the class files
-		
+
 		while (it.hasNext()) {
 			File file = null;
 			String fname = null;
@@ -332,7 +338,7 @@ public class ComponentJarUtils {
 			bi = new BufferedInputStream(new FileInputStream(fname));
 			String jarEntry = className.replace(outputLocation+File.separator, "");
 			jarEntry = jarEntry.replace(File.separatorChar, '/');
-		
+
 			je = new JarEntry(jarEntry);
 			jo.putNextEntry(je);
 
@@ -353,7 +359,7 @@ public class ComponentJarUtils {
 				if(sourceFile.getRawLocation()!=null){
 					String fname=sourceFile.getRawLocation().makeAbsolute().toOSString();
 					bi = new BufferedInputStream(new FileInputStream(fname));
-					String jarEntry = sourceFile.getProjectRelativePath().toOSString(); 
+					String jarEntry = sourceFile.getProjectRelativePath().toOSString();
 					jarEntry = jarEntry.replace(File.separatorChar, '/');
 					je = new JarEntry(jarEntry);
 					jo.putNextEntry(je);
@@ -413,25 +419,25 @@ public class ComponentJarUtils {
 	}
 
 	/**Check if the key is valid
-	 * 
+	 *
 	 * @param s
 	 * @return
 	 */
 	private boolean validManifestKey(final String s) {
 		final char[] chars = s.toCharArray();
-		  for (int x = 0; x < chars.length; x++) {      
+		  for (int x = 0; x < chars.length; x++) {
 		    final char c = chars[x];
 		    if ((c >= 'a') && (c <= 'z')) continue; // lowercase
 		    if ((c >= 'A') && (c <= 'Z')) continue; // uppercase
 		    if ((c >= '0') && (c <= '9')) continue; // numeric
 		    if ((c >= '_') && (c <= '-')) continue; // valid key
 		    return false;
-		  }  
+		  }
 		  return true;
-		
+
 	}
 
-	
+
 
 
 }

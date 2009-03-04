@@ -1,17 +1,22 @@
 /*
  * @(#) InstallComponentRunnable.java @VERSION@
- * 
+ *
  * Copyright (c) 2008, Board of Trustees-University of Illinois.
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html 
+ * http://www.eclipse.org/legal/epl-v10.html
  */
 package org.meandre.ide.eclipse.component.popup.actions;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -28,7 +33,6 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.ui.console.MessageConsole;
@@ -43,27 +47,25 @@ import org.meandre.ide.eclipse.utils.ProjectClassLoader;
 import org.meandre.ide.eclipse.utils.ProjectSourceUtils;
 import org.meandre.plugins.bean.ComponentAppletBean;
 import org.meandre.server.MeandreEngineServicesConstants;
-import org.meandre.tools.components.CreateComponentDescriptor;
 import org.meandre.tools.components.FindComponentDep;
 import org.meandre.tools.components.InstallComponent;
 
-import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentNature;
-import org.meandre.annotations.ComponentNatures;
+import org.meandre.annotations.CreateDefaultComponentDescriptor;
 import org.meandre.core.repository.CorruptedDescriptionException;
 
 
 
 /**This class installs a component to the meandre server
- * @category spaghetti 
+ * @category spaghetti
  * @author Amit Kumar
  * @modified Amit Kumar -July 12th 2008 Refractoring code
- * @modified Amit Kumar -Sep 5th 2008 Added check to find out if the 
+ * @modified Amit Kumar -Sep 5th 2008 Added check to find out if the
  * component class is in the library classpath
- * 
+ *
  * Created on Apr 29, 2008 10:31:50 PM
- *  
- * 
+ *
+ *
  */
 public class InstallComponentRunnable implements IRunnableWithProgress {
 
@@ -73,13 +75,14 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 	private ICompilationUnit unit = null;
 	private IJavaProject project=null;
-	
+	private boolean packagePath;
+
 
 	HashMap<String,String> classList = new HashMap<String,String>();
 	HashMap<String,String> sourceList = new HashMap<String, String>();
 
 
-	
+
 	public InstallComponentRunnable( ICompilationUnit unit, IJavaProject project) {
 		this.unit= unit;
 		this.project = project;
@@ -90,6 +93,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 	@SuppressWarnings("unchecked")
 	public void run(IProgressMonitor monitor)
 	throws InvocationTargetException, InterruptedException {
+
 		monitor.beginTask("Installing Component",100);
 		if(Activator.getServerVersion()==null){
 			MeandreLogger.logError("Error: Meandre Server not running?");
@@ -106,6 +110,8 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 		String baseFolder = workspace.getRoot().getLocation().toPortableString();
 		boolean hasAspectJ =  prefs.getBoolean(PreferenceConstants.P_HAS_ASPECT_J);
 		boolean storeSource = prefs.getBoolean(PreferenceConstants.P_INCLUDE_SOURCE);
+		this.packagePath = prefs.getBoolean(PreferenceConstants.P_CREATE_PACKAGE_PATH);
+
 		String workspacePath = workspace.getRoot().getLocation().toOSString();
 
 		monitor.worked(2);
@@ -145,7 +151,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 			out.println("[Error] could not retrieve the compilation unit.");
 			return;
 		}
-			
+
 			try {
 				className = unit.getTypes()[0].getFullyQualifiedName();
 			} catch (JavaModelException e) {
@@ -168,7 +174,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 					return;
 				}
                                 */
-		
+
 
 				try {
 
@@ -178,7 +184,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						out.println("Error could not get the " + className);
 						return;
 					}
-			
+
 					String projectPath  =null;
 					String outputLocation = new File(baseFolder+ ProjectClassLoader.getProjectOutput(project)).getAbsolutePath();
 					//System.out.println("Output is here: " + outputLocation);
@@ -202,16 +208,16 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 					out.println("Component Source: " +  sourcePath);
 					out.println("Project Path:  " +  project.getPath());
-					
+
 					// the classloader without the output bin folder
 					// we want to check if the component class is already in a jar library
 					// if so we want to complain.
 					URLClassLoader urlClassloaderWithoutBin=ProjectClassLoader.getProjectClassLoader(project,false,hasAspectJ);
-					
+
 					boolean foundClassInJarLibs = Boolean.TRUE;
 					foundClassInJarLibs=checkIfClassInLibraryClasspath(className,urlClassloaderWithoutBin);
-					
-					
+
+
 					if(foundClassInJarLibs){
 						out.println("The list of the jar files is: ");
 						for(int i =0; i < urlClassloaderWithoutBin.getURLs().length; i++){
@@ -222,16 +228,16 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 								" the jar file with the component classes and dependencies.");
 						return;
 					}
-					
-					
+
+
 					URLClassLoader urlClassloader=ProjectClassLoader.getProjectClassLoader(project,hasAspectJ);
 					if(urlClassloader==null){
-						out.println("Error: Project Classpath is null...");	
+						out.println("Error: Project Classpath is null...");
 						return;
 					}else{
 						out.println("Number of libraries in the classpath: " + urlClassloader.getURLs().length);
 					}
-					
+
 					Class claszz=null;
 					try{
 						claszz = urlClassloader.loadClass(className);
@@ -241,15 +247,15 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						for(int i=0; i < urlClassloader.getURLs().length; i++){
 							out.println(urlClassloader.getURLs()[i].toString());
 						}
-						
-						
+
+
 						return;
 					}
 					String ouputDir=ProjectClassLoader.getProjectOutput(project);
 
-					
-					
-					
+
+
+
 					out.println("[INFO] 12 ouputDir " + ouputDir);
 					if(monitor.isCanceled()){
 						return;
@@ -261,13 +267,18 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 
 					out.println("Got the class..." + claszz.getName());
-		
-					Component componentAnnotation = (Component) claszz.getAnnotation(Component.class);
-					
-					System.out.println("Annotatin size--->"+claszz.getAnnotations().length);
-					if(monitor.isCanceled()){
-						return;
-					}
+
+
+
+					//Component componentAnnotation = (Component) claszz.getAnnotation(Component.class);
+
+					//System.out.println("Annotatin size--->"+claszz.getAnnotations().length);
+					//if(monitor.isCanceled()){
+					//	return;
+					//}
+
+
+
 
 					monitor.worked(15);
 					monitor.subTask("trying to get component annotation "+ claszz.getName());
@@ -275,23 +286,29 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 
 
-					if (componentAnnotation == null) {
-						out.println("[Error] The class is not a valid component.");
-						message = "The class is not a valid component.It either does not have @Component annotation or is not in a compile state";
-						monitor.worked(100);
-						monitor.subTask("Error: The class is not a valid component.\nIt does not have @Component annotation or is not in a compile state");
-						Thread.sleep(2000);
-						monitor.done();
-						return;
-					} 
-					
-						ComponentNatures componentNatures = (ComponentNatures) claszz.getAnnotation(ComponentNatures.class);
-						ComponentNature componentNature =  	(ComponentNature) claszz.getAnnotation(ComponentNature.class);
+					CreateDefaultComponentDescriptor cdcd = new CreateDefaultComponentDescriptor();
+					String rdfContent =null;
+					try {
+						rdfContent =cdcd.process(claszz);
+					} catch (CorruptedDescriptionException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
+					HashMap<String, Object> componentAnnotationMap = cdcd.getAnnotationReader().
+					getComponentClassAnnotationMap(claszz, org.meandre.annotations.Component.class);
+					String resources[] = (componentAnnotationMap.containsKey("resources"))?(String[])componentAnnotationMap.get("resources"):new String[]{};
+					String dependency[] = (componentAnnotationMap.containsKey("dependency"))?(String[])componentAnnotationMap.get("dependency"):new String[]{};
+					String componentName=(String)componentAnnotationMap.get("name");
+
+
+						//ComponentNatures componentNatures = (ComponentNatures) claszz.getAnnotation(ComponentNatures.class);
+						HashMap<String,ComponentNature>componentNatureMap  =  	cdcd.getAnnotationReader().getComponentNatureAnnotation(claszz);
+
 						ArrayList<URL> alist = (ArrayList<URL>) ProjectClassLoader.getProjectClassPathURLs(project,hasAspectJ);
-						
-						
+
+
 						out.println("# of jars in the classpath "+ alist.size());
-								
+
 
 						if(monitor.isCanceled()){
 							return;
@@ -311,9 +328,6 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 								if (JarUtils.notInFilter(jarfile.getName(),
 										filterJarList)) {
-									//out.println("Adding: "
-									//		+ jarfile.getAbsolutePath()
-									//		+ " to the app classpath");
 									if (jarfile.isFile()) {
 										jarList.add(jarfile.getAbsolutePath());
 									}
@@ -327,33 +341,34 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						}
 
 
-						ArrayList<String> resourceList = this.projectSourceUtils.getResourceList(componentAnnotation,parentFile);
+						ArrayList<String> resourceList = this.projectSourceUtils.getResourceList(resources,parentFile);
 
 						boolean componentJarCreated= Boolean.FALSE;
-						String fileName = componentAnnotation.name().toLowerCase();
+						String fileName = componentName.toLowerCase();
 						fileName = fileName.replaceAll("\\s+", "-");
-						String componentJar = System.getProperty("java.io.tmpdir")+File.separator+claszz.getName()+"-"+fileName+".jar";
+						String componentJar = System.getProperty("java.io.tmpdir")+File.separator+claszz.getName()+".jar";
 						out.println("creating component jar file: " + componentJar);
-						ArrayList<IFile> sourceList = this.projectSourceUtils.getSourceList(outputLocation, classList);
+						//ArrayList<IFile> sourceList = this.projectSourceUtils.getSourceList(outputLocation, classList);
 						try {
 							componentJarCreated=this.componentUtils.createComponentJar(claszz,
 									componentPath,
 									outputLocation,
 									projectPath,
 									sourcePath,
-									componentJar, 
+									componentJar,
 									resourceList,
-									"2.0.1", 
+									"2.0.1",
 									storeSource,
-									classList, 
-									sourceList);
+									classList);
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
 							out.println("[ERROR] "+ e1.getMessage());
 							e1.printStackTrace();
 							return;
 						}
-					
+
+						//sourceList = this.projectSourceUtils.getSourceList(outputLocation, classList);
+
 						if(monitor.isCanceled()){
 							return;
 						}
@@ -370,12 +385,12 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						monitor.worked(35);
 						monitor.subTask("created component jar "+ componentJar);
 						Thread.sleep(1000);
-						
+
 						out.println("Trying to find applets");
 						// now create the applets if needed
 						ComponentNatureHandler componentNatureHandler = new ComponentNatureHandler(project,out);
 						ArrayList<ComponentAppletBean> appletList = new ArrayList<ComponentAppletBean>(3);
-						if(componentNatures !=null){
+						/*if(componentNatures !=null){
 							for( ComponentNature cn:componentNatures.natures()){
 									if(!checkIfClassInLibraryClasspath(cn.extClass().getName(),urlClassloaderWithoutBin )){
 										ComponentAppletBean cab=	componentNatureHandler.getComponentAppletBean(cn);
@@ -389,8 +404,9 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 									}
 								}
 							}
-					
-						if(componentNature!=null){
+						 	*/
+						if(componentNatureMap!=null){
+							for(ComponentNature componentNature: componentNatureMap.values()){
 							ComponentAppletBean cab=	componentNatureHandler.getComponentAppletBean(componentNature);
 							if(cab!=null){
 								if(!checkIfClassInLibraryClasspath(cab.getMainClass(),urlClassloaderWithoutBin )){
@@ -401,13 +417,14 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 									return;
 								}
 							}
+							}
 						}
 
 						out.println("After finding applets:- Now Finding Dependencies");
 
 
 						FindComponentDep fcd = new FindComponentDep(jarList);
-						fcd.execute(componentPath,componentAnnotation.dependency());
+						fcd.execute(componentPath,dependency);
 						//ArrayList<String> missingJarFiles = new ArrayList<String>(2);
 						//ArrayList<String> uploadJarFiles = new ArrayList<String>(10);
 						if(fcd.getDependencyNotFoundList().size() >0){
@@ -427,16 +444,16 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 							Thread.sleep(10000);
 						}
 
-					
+
 						if(monitor.isCanceled()){
 							return;
 						}
 
-						
+
 						boolean hasApplet = appletList.size()>0;
 						boolean hasMissingAppletJar = Boolean.FALSE;
 						String appletErrorMessage=" ";
-						
+
 						//fcd.reset();
 						for(ComponentAppletBean cb:appletList){
 							if(cb.hasCreatedJarFile()){
@@ -446,12 +463,12 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 								hasMissingAppletJar = Boolean.TRUE;
 							}
 						}
-						
+
 						if(hasApplet && hasMissingAppletJar){
 							out.println("Error: Applet jar could not be located: " + appletErrorMessage.trim());
 							return;
 						}
-						
+
 
 
 						ArrayList<String> dlist = fcd.getDependencyList();
@@ -464,8 +481,8 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 								dlist.add(cb.getAppletJarName());
 							}
 						}
-						
-						
+
+
 						System.out.println(dlist.size());
 						Iterator<String> it1 = dlist.iterator();
 						String jarDependency = null;
@@ -487,34 +504,29 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 							message = message + " " + jarDependency;
 						}
 
-						CreateComponentDescriptor ccd = new CreateComponentDescriptor(
-								tmpFolder);
+						//CreateComponentDescriptor ccd = new CreateComponentDescriptor(
+						//		tmpFolder);
 						String descriptorFileName = null;
-						try {
-							ccd.init(claszz);
-							descriptorFileName = ccd.process();
-							message = " Desriptor created "
-								+ descriptorFileName;
-							out.println("Descriptor created: "
-									+ descriptorFileName);
+
+						//	ccd.init(claszz);
+						//	descriptorFileName = ccd.process();
+						//	message = " Desriptor created "
+						//		+ descriptorFileName;
+						//	out.println("Descriptor created: "
+						//			+ descriptorFileName);
+
+						descriptorFileName=this.writeToFile(rdfContent,tmpFolder,claszz.getName(), claszz.getSimpleName());
+						message = " Desriptor created " + fileName;
+
+
+
 							if(monitor.isCanceled()){
 								return;
 							}
+
 							monitor.worked(75);
 							monitor.subTask("created component rdf descriptor in "+ tmpFolder);
 							Thread.sleep(1000);
-
-						} catch (ClassNotFoundException e) {
-							// TODO Auto-generated catch block
-							//showMessage(e.getMessage() + " " + className);
-							out.println("Class not found " + className +" "+ e.getMessage());
-							e.printStackTrace();
-						} catch (CorruptedDescriptionException e) {
-							// TODO Auto-generated catch block
-							//showMessage(e.getMessage() + " " + className);
-							out.println("Error in the descriptor: " +  className+ " " +e.getMessage());
-							e.printStackTrace();
-						}
 
 						if(monitor.isCanceled()){
 							return;
@@ -540,11 +552,11 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						if(!url.startsWith("http://")){
 							url = "http://"+url;
 						}
-						
+
 						if (url.endsWith("/")) {
 							url = url.substring(0, url.length() - 1);
 						}
-					
+
 						if(Activator.getServerVersion().startsWith("1.3")){
 							url = url
 									+ ":"
@@ -590,7 +602,9 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 								overwrite, dump, embed, jararray);
 						monitor.worked(100);
 						monitor.done();
-					
+
+						System.out.println("Component loaded: " + descriptorFileName);
+
 
 				} catch (JavaModelException e) {
 					message = "Java Model Exception " + e.getMessage();
@@ -610,14 +624,14 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 
 
-	/**Returns the location of the src folder for the component 
-	 * 
+	/**Returns the location of the src folder for the component
+	 *
 	 * @param project
 	 * @param projectPath
 	 * @param componentEntity
 	 * @return
 	 */
-	public String getComponentSourceLocation(IJavaProject project, 
+	public String getComponentSourceLocation(IJavaProject project,
 			String projectPath,String componentEntity){
 		IType itype = null;
 		try {
@@ -636,9 +650,64 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 	}
 
 
-	
 
-	
+
+	/**Write file to the tmp folder
+	 *
+	 * @param description
+	 * @param className
+	 * @param simpleName
+	 * @return
+	 */
+	 private String writeToFile(String description,String componentDescriptorFolder, String className, String simpleName) {
+		 String dirPath = componentDescriptorFolder;
+		  if (className.lastIndexOf(".") == -1) {
+	            dirPath = componentDescriptorFolder;
+	        } else {
+	        	if(packagePath){
+	            dirPath = componentDescriptorFolder + File.separator +
+	                     className.substring(0, className.lastIndexOf("."));
+	        	}else{
+	        	dirPath = componentDescriptorFolder;
+	        	}
+
+	        }
+	        dirPath = dirPath.replace('.', File.separatorChar);
+	        if (!(new File(dirPath)).exists()) {
+	            new File(dirPath).mkdirs();
+	        }
+
+	        String absoluteFilePath = dirPath +  File.separator + simpleName + ".rdf";
+
+	        BufferedWriter out = null;
+	        final String encoding = "UTF-8";
+	        try {
+	            out = new BufferedWriter(new OutputStreamWriter(new
+	                    FileOutputStream(absoluteFilePath), encoding));
+	            out.write(description.trim());
+	            out.flush();
+	            out.close();
+	        } catch (UnsupportedEncodingException e) {
+	            e.printStackTrace();
+	        } catch (FileNotFoundException e) {
+	            e.printStackTrace();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        } finally {
+	            if (out != null) {
+	                try {
+	                    out.close();
+	                } catch (IOException e) {
+	                    e.printStackTrace();
+	                }
+	            }
+	        }
+	        return absoluteFilePath;
+	    }
+
+
+
+
 /* CANNOT USE THIS METHOD IN THE THREAD
 	private void showMessage(String message) {
 		Shell shell =PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();

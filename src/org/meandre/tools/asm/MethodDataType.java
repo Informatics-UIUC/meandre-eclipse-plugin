@@ -1,12 +1,12 @@
 /**
  * @(#) MethodDataType.java @VERSION@
- * 
+ *
  * Copyright (c) 2008, Board of Trustees-University of Illinois.
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html 
+ * http://www.eclipse.org/legal/epl-v10.html
  */
 package org.meandre.tools.asm;
 
@@ -63,7 +63,7 @@ public class MethodDataType {
 	public void setArg1(String arg1) {
 		this.arg1 = arg1;
 	}
-	
+
 	public String toString(){
 		return this.variableDataType + " : " + this.methodName + " : " + this.variableName +" : "+ this.arg1;
 	}

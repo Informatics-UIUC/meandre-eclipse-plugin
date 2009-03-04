@@ -137,10 +137,6 @@ public class MeandrePluginProxy extends MeandreProxy{
 		}
 
 	}
-
-
-
-
 	
 
 }

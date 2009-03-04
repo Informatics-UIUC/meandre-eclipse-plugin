@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="src-test"/>
 	<classpathentry exported="true" kind="lib" path="lib/stax-api-1.0-2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jettison-1.0-RC2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xstream-1.2.2.jar"/>

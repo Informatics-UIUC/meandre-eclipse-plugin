@@ -139,6 +139,9 @@ public class ComponentNatureHandler {
 	
 	
 	
+	
+	
+	
 
 	/**Finds the component dependencies transitively
 	 * 
@@ -441,7 +444,9 @@ public class ComponentNatureHandler {
 		}
 		return null;
 	}
-
+	
+	
+	
 	
 	/**Returns the location of the src folder for the component 
 	 * 

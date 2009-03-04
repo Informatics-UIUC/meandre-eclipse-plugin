@@ -43,7 +43,7 @@ public class _CLASS_ implements ExecutableComponent {
 	
 
 	@ComponentOutput(description="Output String", name="string_out")
-	final static String DATA_OUTPUT_1= "string_concated";
+	final static String DATA_OUTPUT_1= "string_concatenated";
 
 	
 	// log messages are here

@@ -15,7 +15,7 @@ fully qualified class name. [TODO] +1
 #38 The Tree viewer does not remember the selected item and upon refresh it should be expanded.  [BUG] 0 Not fully resolved
 #42 Double click on the component jar should display the contents -class and source code in a another v
 iew docked to the right [TODO] +1
-#44 Ability to support multiple components java source code for installation 
+#44 Ability to support multiple components java source code for installation
 -instead of only one at a time. [TODO] April 10th 2008. +1
 #59 Sort the components by author/data published etc. [TODO] April 16th 2008.
 #61 Display Component Documentation [TODO] April 17th 2008.
@@ -23,13 +23,13 @@ iew docked to the right [TODO] +1
 #82 Modify the core plugin call to check if the plugin is running or not [TODO] June 10th 2008
 #83 Add option to save or disable saving applet code. [TODO] June 10th 2008
 #85 Before creating the component install or applet install check if the class is present in the list of jar files present
-in the classpath -if so don't upload and tell the user that they already have the class in a jar 
+in the classpath -if so don't upload and tell the user that they already have the class in a jar
 and in a classpath so it would be an error to upload the component [CRITICAL] June 13th 2008.
 #87 A bug in get ComponentOuput Data type -check WekaJ48Tree component -the Model displays a java.lang.Exception [CRITICAL] June 14th 2008.
-In order to recreate this issue just checkout any of the meandre component projects and try to 
+In order to recreate this issue just checkout any of the meandre component projects and try to
 install the component. -[CRITICAL] -June 25th 2008
-#92 I recently discovered this, suppose the Component extends an Abstract  class, the dependencies used by the 
-functions implemented in the  Abstract class are not discovered by the plugin. -[CRITICAL] July 4th Look at 
+#92 I recently discovered this, suppose the Component extends an Abstract  class, the dependencies used by the
+functions implemented in the  Abstract class are not discovered by the plugin. -[CRITICAL] July 4th Look at
 the MonKWorksetReportComponent.
 #96 java.lang.NullPointerException
         at org.meandre.ide.eclipse.classpathcontainer.MeandreProjectContainer.<init>(MeandreProjectContainer.java:54)
@@ -47,3 +47,4 @@ list and the package jar file.
 [WIll NOT DO]: The plugin has three steps; what you are asking requires me to remove the last step; It can be done
 but is a bit of a task and I am not sure if it is all that useful.
 #108 Updated to  Meandre Server 1.4 alpha -Breaks compatiability with previous versions [DONE] November 20th 2008
+

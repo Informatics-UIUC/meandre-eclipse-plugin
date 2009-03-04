@@ -1,19 +1,24 @@
 /*
  * @(#) ComponentInstallationPage.java @VERSION@
- * 
+ *
  * Copyright (c) 2008, Board of Trustees-University of Illinois.
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html 
+ * http://www.eclipse.org/legal/epl-v10.html
  */
 package org.meandre.ide.eclipse.component.wizard.dependency;
 
 
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,10 +53,9 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import org.eclipse.swt.layout.GridLayout;
-
-import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentNature;
-import org.meandre.annotations.ComponentNatures;
+import org.meandre.annotations.CreateDefaultComponentDescriptor;
+import org.meandre.annotations.DetectDefaultComponentAnnotations;
 import org.meandre.core.repository.CorruptedDescriptionException;
 import org.meandre.ide.eclipse.component.Activator;
 import org.meandre.ide.eclipse.component.preferences.PreferenceConstants;
@@ -63,12 +67,11 @@ import org.meandre.ide.eclipse.utils.ProjectClassLoader;
 import org.meandre.ide.eclipse.utils.ProjectSourceUtils;
 import org.meandre.plugins.bean.ComponentAppletBean;
 import org.meandre.server.MeandreEngineServicesConstants;
-import org.meandre.tools.components.CreateComponentDescriptor;
 import org.meandre.tools.components.FindComponentDep;
 import org.meandre.tools.components.InstallComponent;
 
 /**This wizard page installs the component.
- * 
+ *
  * @author Amit Kumar
  * Created on Jul 13, 2008 4:07:15 PM
  *
@@ -101,6 +104,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 	String password;
 	boolean embed;
 	boolean overwrite;
+	boolean packagePath= true;
 
 	protected ComponentInstallationPage() {
 		super("Component Installation List");
@@ -114,14 +118,14 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 		workspace = ResourcesPlugin.getWorkspace();
 		baseFolder = workspace.getRoot().getLocation().toPortableString();
 		workspacePath = workspace.getRoot().getLocation().toOSString();
-		
+
 		url = prefs.getString(PreferenceConstants.P_SERVER);
 		port = prefs.getInt(PreferenceConstants.P_PORT);
-	
+
 		if(!url.startsWith("http://")){
 			url = "http://"+url;
 		}
-		
+
 		if (url.endsWith("/")) {
 			url = url.substring(0, url.length() - 1);
 		}
@@ -135,7 +139,8 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 		username = prefs.getString(PreferenceConstants.P_LOGIN);
 		password = prefs.getString(PreferenceConstants.P_PASSWORD);
 		embed = prefs.getBoolean(PreferenceConstants.P_EMBED);
-		overwrite = prefs.getBoolean(PreferenceConstants.P_OVERWRITE);		
+		overwrite = prefs.getBoolean(PreferenceConstants.P_OVERWRITE);
+		packagePath=prefs.getBoolean(PreferenceConstants.P_CREATE_PACKAGE_PATH);
 	}
 
 	public void createControl(Composite parent) {
@@ -179,20 +184,20 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 		progressBar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		progressBar.setMinimum(0);
 		progressBar.setMaximum(30);
-		
-		
+
+
 		installLabel = new Label(composite,SWT.BORDER);
 		installLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		
-		
+
+
 		installprogressBar = new ProgressBar(composite, SWT.HORIZONTAL | SWT.SMOOTH);
 		installprogressBar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		installprogressBar.setMinimum(0);
 		installprogressBar.setMaximum(30);
-		
-		
-		
+
+
+
 		installComponentButton = new Button(composite, SWT.PUSH);
 		installComponentButton.setText("Install");
 		installComponentButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_END));
@@ -271,7 +276,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 			if(this.stopInstall){
 				continue;
 			}
-			
+
 			ComponentData cdata = this.getModel().getData(className);
 			if(cdata.isSelected()){
 				if(this.checkIfClassInLibraryClasspath(className, this.getProjectClassLoaderWithoutBin())){
@@ -279,7 +284,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 							" library. Please remove the offending jar file from the classpath to install this component ");
 				continue;
 				}
-				
+
 				Class claszz=null;
 				try{
 					claszz = getProjectClassLoader().loadClass(className);
@@ -295,7 +300,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 				}else{
 					cdata.setInstalled(false);
 				}
-				
+
 				progressBar.setSelection(countInstalled);
 			}
 		}
@@ -336,12 +341,40 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 			projectPath =  new File(workspacePath + getJavaProject().getPath().toOSString()).getAbsolutePath();
 			String sourcePath = getComponentSourceLocation(getJavaProject(), getJavaProject().getPath().toOSString(),componentEntity);
 			String ouputDir=ProjectClassLoader.getProjectOutput(getJavaProject());
+			this.installLabel.setText("Creating component resource descriptor: " + name);
+
+			//CreateComponentDescriptor ccd = new CreateComponentDescriptor(tmpFolder);
+			CreateDefaultComponentDescriptor ccd = new CreateDefaultComponentDescriptor();
+			String descriptorFileName = null;
+			try {
+				String rdfString=ccd.process(claszz);
+				descriptorFileName = writeToFile(rdfString, claszz.getName(), claszz.getSimpleName());
+				}catch (CorruptedDescriptionException e) {
+				e.printStackTrace();
+				}
+			this.installprogressBar.setSelection(progress++);
+
+
+
 			this.installLabel.setText("Getting component annotations: " + name);
 			this.installprogressBar.setSelection(progress++);
-			Component componentAnnotation = (Component) claszz.getAnnotation(Component.class);
-			ComponentNatures componentNatures = (ComponentNatures) claszz.getAnnotation(ComponentNatures.class);
-			ComponentNature componentNature =  	(ComponentNature) claszz.getAnnotation(ComponentNature.class);
-		
+			DetectDefaultComponentAnnotations annotationReader=ccd.getAnnotationReader();
+
+			HashMap<String,Object> componentAnnotationHashMap=annotationReader.
+			getComponentClassAnnotationMap(claszz, org.meandre.annotations.Component.class);
+
+			//HashMap<String, Object> componentNatureHashMap = annotationReader.getComponentClassAnnotationMap(claszz,
+			//		org.meandre.annotations.ComponentNature.class);
+
+			HashMap<String, Object> componentNaturesHashMap = annotationReader.getComponentClassAnnotationMap(claszz,
+					org.meandre.annotations.ComponentNatures.class);
+
+
+			//Component componentAnnotation = (Component) claszz.getAnnotation(Component.class);
+			//ComponentNatures componentNatures = (ComponentNatures) claszz.getAnnotation(ComponentNatures.class);
+			HashMap<String,ComponentNature> componentNatureHashMap =   annotationReader.getComponentNatureAnnotation(claszz);
+
+
 
 
 			out.println("[INFO] 9 sourcePath " +  sourcePath);
@@ -352,20 +385,33 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 
 			System.out.println("Annotatin size--->"+claszz.getAnnotations().length);
 
+			Object objectResource = componentAnnotationHashMap.get("resources");
+			String resources[] =null;
+
+			if(objectResource!=null){
+			resources= (String[])componentAnnotationHashMap.get("resources");
+			}
 
 
-			ArrayList<String> resourceList = this.projectSourceUtils.getResourceList(componentAnnotation,parentFile);
+			ArrayList<String> resourceList = this.projectSourceUtils.getResourceList(resources,parentFile);
 
 			boolean componentJarCreated= Boolean.FALSE;
-			String fileName = componentAnnotation.name().toLowerCase();
+			Object objectName = componentAnnotationHashMap.get("name");
+			String fileName =null;
+			if(objectName!=null){
+			fileName = ((String)objectName).toLowerCase();//componentAnnotation.name().toLowerCase();
 			fileName = fileName.replaceAll("\\s+", "-");
-			String componentJar = System.getProperty("java.io.tmpdir")+File.separator+claszz.getName()+"-"+fileName+".jar";
+			}
+			if(fileName==null){
+				out.println("Error: name is null "+ fileName);
+				return false;
+			}
+
+			String componentJar = tmpFolder+File.separator+claszz.getName()+".jar";
 			out.println("creating component jar file: " + componentJar);
 			out.println("===> " + projectPath + "  " + sourcePath + " " + componentJar + "  "+ resourceList);
 			this.installLabel.setText("Getting component source " + name);
 			this.installprogressBar.setSelection(progress++);
-			ArrayList<IFile> sourceList = this.projectSourceUtils.getSourceList(outputLocation, classList);
-			
 			this.installLabel.setText("Creating component jar package: " + name);
 			this.installprogressBar.setSelection(progress++);
 			try {
@@ -374,37 +420,40 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 						outputLocation,
 						projectPath,
 						sourcePath,
-						componentJar, 
+						componentJar,
 						resourceList,
-						"2.0.1", 
+						"2.0.1",
 						storeSource,
-						classList, 
-						sourceList);
+						classList);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				out.println("[ERROR] "+ e1.getMessage());
 				e1.printStackTrace();
-				
+
 				if(!displayMessageAndAskToContinue(name,className," error creating component jar file. " )){
 					this.stopInstall = true;
 				}
 				return false;
 			}
-			
+
 			this.installLabel.setText("Created component jar package: " + name);
 			this.installprogressBar.setSelection(progress++);
-			
+
 
 			out.println("After creating component jar");
 			out.println("Trying to find applets");
 
 			this.installLabel.setText("Detecting applets:  " + name);
-			
+
 			// now create the applets if needed
 			ComponentNatureHandler componentNatureHandler = new ComponentNatureHandler(this.getJavaProject(), out);
 			ArrayList<ComponentAppletBean> appletList = new ArrayList<ComponentAppletBean>(3);
-			if(componentNatures !=null){
-				for( ComponentNature cn:componentNatures.natures()){
+			if(componentNaturesHashMap.size()>0){
+				//for( String key: componentNaturesHashMap.keySet()){
+					ComponentNature cnList[]= (ComponentNature[])componentNaturesHashMap.get("natures");
+					if(cnList!=null){
+
+					for(ComponentNature cn: cnList){
 					if(!checkIfClassInLibraryClasspath(cn.extClass().getName(), this.getProjectClassLoaderWithoutBin()))
 					{
 						ComponentAppletBean cab=	componentNatureHandler.getComponentAppletBean(cn);
@@ -418,11 +467,16 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 						" library. Please remove the offending jar file from the project classpath to install this component ");
 					}
 
-					
-				}
+					}
+
+					}
+
+				//}
 			}
-			
-			if(componentNature!=null){
+
+			if(componentNatureHashMap.size()>0){
+				for(String key: componentNatureHashMap.keySet()){
+				ComponentNature componentNature  = componentNatureHashMap.get(key);
 				if(!checkIfClassInLibraryClasspath(componentNature.extClass().getName(),
 						this.getProjectClassLoaderWithoutBin())){
 				ComponentAppletBean cab=	componentNatureHandler.getComponentAppletBean(componentNature);
@@ -435,27 +489,37 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 						out.println("Cannot install this component: " + componentNature.extClass().getName() + " as it is present in the project" +
 						" library. Please remove the offending jar file from the classpath to install this component ");
 					}
+				}
+
+
 			}
-			
+
 			this.installprogressBar.setSelection(progress++);
-			
+
 			if(appletList.size()>0){
 				this.installLabel.setText("Found " + appletList.size() + " applets in the component: " + name);
 			}
 			out.println("After find applets:- Now Finding Dependencies");
 
 			this.installLabel.setText("Looking for component dependencies: " +  name);
-			
+
 			FindComponentDep fcd = new FindComponentDep(getProjectClasspath());
 			out.println("Before finding component dep");
-			fcd.execute(componentPath,componentAnnotation.dependency());
+			Object dependencyObject  = componentAnnotationHashMap.get("dependency");
+			String[] dependency=null;
+
+			if(dependencyObject!=null){
+			dependency = (String[])dependencyObject;
+			}
+
+			fcd.execute(componentPath,dependency);
 			out.println("After finding component dep");
 			this.installprogressBar.setSelection(progress++);
 			this.installLabel.setText("Found "+   fcd.getDependencyList().size() + " dependencies: " + name);
 			this.installprogressBar.setSelection(progress++);
-			
-			
-			
+
+
+
 			if(fcd.getDependencyNotFoundList().size() >0){
 				String message ="Following external dependencies not found " +
 				"in the project classpath. ";
@@ -469,9 +533,9 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 				if(!displayMessageAndAskToContinue(name,className, message )){
 					this.stopInstall = true;
 				}
-					return false;				
-				
-				
+					return false;
+
+
 			}
 
 			boolean hasApplet = appletList.size()>0;
@@ -507,11 +571,11 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 					dlist.add(cb.getAppletJarName());
 				}
 			}
-			
-			
+
+
 			this.installLabel.setText("Getting ready to upload "+   dlist.size() + " dependencies: " + name);
-			
-			
+
+
 
 			System.out.println(dlist.size());
 			Iterator<String> it1 = dlist.iterator();
@@ -525,26 +589,12 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 				out.println(jarDependency);
 			}
 			this.installprogressBar.setSelection(progress++);
-			
-			this.installLabel.setText("Creating component resource descriptor: " + name);
-		
-			CreateComponentDescriptor ccd = new CreateComponentDescriptor(tmpFolder);
-			String descriptorFileName = null;
-			try {
-				ccd.init(claszz);
-				descriptorFileName = ccd.process();
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			} catch (CorruptedDescriptionException e) {
-				e.printStackTrace();
-			}
-			this.installprogressBar.setSelection(progress++);
-			
-		
+
+
 			boolean dump = Boolean.FALSE;
 
 			this.installLabel.setText("Uploading "+dlist.size()+" component jars: " + name);
-			
+
 			InstallComponent ic = new InstallComponent(url, port,username, password);
 			ic.init(dlist);
 			String[] jararray = (String[]) dlist
@@ -559,7 +609,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 			}
 			out.print(e.getMessage());
 			e.printStackTrace();
-		} 
+		}
 		return true;
 
 	}
@@ -587,14 +637,14 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 	  return proceed;
 	}
 
-	/**Returns the location of the src folder for the component 
-	 * 
+	/**Returns the location of the src folder for the component
+	 *
 	 * @param project
 	 * @param projectPath
 	 * @param componentEntity
 	 * @return
 	 */
-	public String getComponentSourceLocation(IJavaProject project, 
+	public String getComponentSourceLocation(IJavaProject project,
 			String projectPath,String componentEntity){
 		IType itype = null;
 		try {
@@ -618,7 +668,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 		// no next page for this path through the wizard
 		return false;
 	}
-	
+
 	private IJavaProject getJavaProject() {
 		return ((MeandreDependencyComponentWizard)this.getWizard()).getJavaProject();
 	}
@@ -628,21 +678,22 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 		return ((MeandreDependencyComponentWizard)this.getWizard()).getProjectClassLoader();
 
 	}
-	
+
 	private URLClassLoader getProjectClassLoaderWithoutBin(){
 		return ((MeandreDependencyComponentWizard)this.getWizard()).getProjectClassLoaderWithoutBin();
 
 	}
-	
+
 	private ArrayList<String> getProjectClasspath(){
 		return ((MeandreDependencyComponentWizard)this.getWizard()).getProjectClasspath();
 	}
-	
+
 
 	private boolean checkIfClassInLibraryClasspath(String className,
 			URLClassLoader urlClassloaderWithoutBin) {
 		boolean foundClassInJarLibs = Boolean.TRUE;
-		Class claszz_tmp=null;
+		@SuppressWarnings("unused")
+		Class<?> claszz_tmp=null;
 		try{
 			claszz_tmp= urlClassloaderWithoutBin.loadClass(className);
 			foundClassInJarLibs = Boolean.TRUE;
@@ -652,4 +703,59 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 		}
 		return foundClassInJarLibs;
 	}
+
+	/**Write file to the tmp folder
+	 *
+	 * @param description
+	 * @param className
+	 * @param simpleName
+	 * @return
+	 */
+	 private String writeToFile(String description, String className, String simpleName) {
+		 String dirPath = tmpFolder;
+		  if (className.lastIndexOf(".") == -1) {
+	            dirPath = tmpFolder;
+	        } else {
+	        	if(packagePath){
+	            dirPath = tmpFolder + File.separator +
+	                     className.substring(0, className.lastIndexOf("."));
+	        	}else{
+	        	dirPath = tmpFolder;
+	        	}
+
+	        }
+	        dirPath = dirPath.replace('.', File.separatorChar);
+	        if (!(new File(dirPath)).exists()) {
+	            new File(dirPath).mkdirs();
+	        }
+
+	        String absoluteFilePath = dirPath +  File.separator + simpleName + ".rdf";
+
+	        BufferedWriter out = null;
+	        final String encoding = "UTF-8";
+	        try {
+	            out = new BufferedWriter(new OutputStreamWriter(new
+	                    FileOutputStream(absoluteFilePath), encoding));
+	            out.write(description.trim());
+	            out.flush();
+	            out.close();
+	        } catch (UnsupportedEncodingException e) {
+	            e.printStackTrace();
+	        } catch (FileNotFoundException e) {
+	            e.printStackTrace();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        } finally {
+	            if (out != null) {
+	                try {
+	                    out.close();
+	                } catch (IOException e) {
+	                    e.printStackTrace();
+	                }
+	            }
+	        }
+	        return absoluteFilePath;
+	    }
+
+
 }

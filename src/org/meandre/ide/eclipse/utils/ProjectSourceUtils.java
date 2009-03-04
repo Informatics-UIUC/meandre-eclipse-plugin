@@ -149,11 +149,36 @@ public class ProjectSourceUtils {
 				}
 			}
 
-			return resourceList;
 		}
-		return null;
+		return resourceList;
 	}
 
+	
+	public ArrayList<String> getResourceList(
+			String resources[], IPath parentFile) {
+		ArrayList<String> resourceList = new ArrayList<String>();
+		if(resources!=null){
+			for(int i=0; i < resources.length;i++){
+				if(resources[i]!=null && resources[i].trim().length()>0){
+					File resourceFile = new File(parentFile.toOSString(),resources[i]);
+					if(resourceFile.exists()){
+						System.out.println("getting the resources");
+						try {
+							resourceList.add(resourceFile.getCanonicalPath());
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}else{
+						//TODO:  RESOURCE NOT FOUND
+					}
+
+				}
+			}
+
+		}
+		return resourceList;
+	}
 
 
 }

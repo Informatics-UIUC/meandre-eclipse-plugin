@@ -74,7 +74,8 @@ public class MeandrePreferencePage
 		//addField(new BooleanFieldEditor(PreferenceConstants.P_PING_SERVER,"&Periodically Ping Server ",getFieldEditorParent()));
 		addField(new BooleanFieldEditor(PreferenceConstants.P_INCLUDE_SOURCE,"&Package Source with the Component ",getFieldEditorParent()));
 		
-		
+		addField(new BooleanFieldEditor(PreferenceConstants.P_CREATE_PACKAGE_PATH,"&Descriptor -Create in package directory",getFieldEditorParent()));
+			
 		
 		
 	}

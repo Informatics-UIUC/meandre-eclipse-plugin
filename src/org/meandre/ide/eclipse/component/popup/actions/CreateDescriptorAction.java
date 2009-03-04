@@ -8,7 +8,13 @@
 
 package org.meandre.ide.eclipse.component.popup.actions;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -36,6 +42,7 @@ import org.meandre.ide.eclipse.utils.ProjectClassLoader;
 import org.meandre.annotations.*;
 import org.meandre.core.repository.CorruptedDescriptionException;
 
+
 import org.meandre.tools.components.*;
 
 /**This class creates the RDF descriptor for the component
@@ -48,6 +55,7 @@ public class CreateDescriptorAction implements IObjectActionDelegate, IEditorAct
 	
 	private ISelection targetSelection;
 	private IEditorPart editorPart;
+	private boolean packagePath;
 
 	/**
 	 * Constructor for Action1.
@@ -74,6 +82,8 @@ public class CreateDescriptorAction implements IObjectActionDelegate, IEditorAct
 		Preferences prefs = Activator.getDefault().getPluginPreferences();
 		String componentDescriptorFolder = prefs.getString(PreferenceConstants.P_DESC_DIR);
 		boolean hasAspectJ =  prefs.getBoolean(PreferenceConstants.P_HAS_ASPECT_J);
+		this.packagePath = prefs.getBoolean(PreferenceConstants.P_CREATE_PACKAGE_PATH);
+		
 		String descriptorFileName=null;
 		String message = null;
 		String className=null;
@@ -130,10 +140,15 @@ public class CreateDescriptorAction implements IObjectActionDelegate, IEditorAct
 		  	Class claszz=pLoader.getProjectClassLoader(unit.getJavaProject(),hasAspectJ).loadClass(className);
 			out.println("Got the class: " + claszz.getName());
 			out.println("Creating Descriptor.");
+	
 			
-			Component componentAnnotation = (Component) claszz.getAnnotation(Component.class);
+			//Component componentAnnotation = (Component) claszz.getAnnotation(Component.class);
+			CreateDefaultComponentDescriptor cdcd = new CreateDefaultComponentDescriptor();
+			String rdfContent =cdcd.process(claszz);
+			String fileName=this.writeToFile(rdfContent, componentDescriptorFolder,claszz.getName(), claszz.getSimpleName());
+			message = " Desriptor created " + fileName;
 			
-			
+			/*
 			if(componentAnnotation!=null){	
 				CreateComponentDescriptor ccd = new CreateComponentDescriptor(componentDescriptorFolder);
 				ccd.init(claszz);
@@ -143,16 +158,17 @@ public class CreateDescriptorAction implements IObjectActionDelegate, IEditorAct
 				message  = " The class " + className +"  is not a valid component.";
 				out.println("[Error] " + message);
 			}
+			*/
+			
 			}catch (ClassNotFoundException e) {
 
 			message = "Class not found: " + className;
 			out.println("[Error] Class not found "+ className);
 			e.printStackTrace();
-		}catch (CorruptedDescriptionException e) {
-			message =" Error: " + e.getMessage();
-			out.println(message);
-			e.printStackTrace();
-		}finally{
+		} catch (CorruptedDescriptionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}finally{
 			try {
 				out.flush();
 				out.close();
@@ -189,5 +205,59 @@ public class CreateDescriptorAction implements IObjectActionDelegate, IEditorAct
 		this.editorPart = editorPart;
 		
 	}
+	
+	/**Write file to the tmp folder
+	 * 
+	 * @param description
+	 * @param className
+	 * @param simpleName
+	 * @return
+	 */
+	 private String writeToFile(String description,String componentDescriptorFolder, String className, String simpleName) {
+		 String dirPath = componentDescriptorFolder;
+		  if (className.lastIndexOf(".") == -1) {
+	            dirPath = componentDescriptorFolder;
+	        } else {
+	        	if(packagePath){
+	            dirPath = componentDescriptorFolder + File.separator +
+	                     className.substring(0, className.lastIndexOf("."));
+	        	}else{
+	        	dirPath = componentDescriptorFolder;
+	        	}
+	            
+	        }
+	        dirPath = dirPath.replace('.', File.separatorChar);
+	        if (!(new File(dirPath)).exists()) {
+	            new File(dirPath).mkdirs();
+	        }
+		 
+	        String absoluteFilePath = dirPath +  File.separator + simpleName + ".rdf";
+	        
+	        BufferedWriter out = null;
+	        final String encoding = "UTF-8";
+	        try {
+	            out = new BufferedWriter(new OutputStreamWriter(new
+	                    FileOutputStream(absoluteFilePath), encoding));
+	            out.write(description.trim());
+	            out.flush();
+	            out.close();
+	        } catch (UnsupportedEncodingException e) {
+	            e.printStackTrace();
+	        } catch (FileNotFoundException e) {
+	            e.printStackTrace();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        } finally {
+	            if (out != null) {
+	                try {
+	                    out.close();
+	                } catch (IOException e) {
+	                    e.printStackTrace();
+	                }
+	            }
+	        }
+	        return absoluteFilePath;
+	    }
+	
 
 }

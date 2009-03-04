@@ -34,6 +34,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.P_PING_SERVER, false);
 		store.setDefault(PreferenceConstants.P_HAS_ASPECT_J, false);
 		store.setDefault(PreferenceConstants.P_INCLUDE_SOURCE, true);
+		store.setDefault(PreferenceConstants.P_CREATE_PACKAGE_PATH, true);
 		
 		
 		store.setDefault(PreferenceConstants.P_SERVER, MeandreEngineServicesConstants.DEFAULT_SERVER);

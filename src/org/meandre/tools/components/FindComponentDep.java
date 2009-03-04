@@ -2,11 +2,11 @@
  * @(#) FindComponentDep.java @VERSION@
  *
  * Copyright (c) 2008, Board of Trustees-University of Illinois.
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html 
+ * http://www.eclipse.org/legal/epl-v10.html
  */
 package org.meandre.tools.components;
 
@@ -34,7 +34,7 @@ public class FindComponentDep {
 	private ArrayList<String> dependencyList;
 
 	private ArrayList<String> dependencyNotFoundList;
-	
+
 	private MeandreComponentDepHandler handler,handler2;
 
 	private String appClasspath;
@@ -45,7 +45,7 @@ public class FindComponentDep {
 
 
     /**populate the jarList based on the the library folder
-     * 
+     *
      * @param libFolder
      */
 	public FindComponentDep(String libFolder){
@@ -59,7 +59,7 @@ public class FindComponentDep {
 
 
 	/**The jar list is filled externally
-	 * 
+	 *
 	 * @param lib
 	 */
 	public FindComponentDep(ArrayList<String> lib){
@@ -71,7 +71,7 @@ public class FindComponentDep {
 		dependencyNotFoundList = new ArrayList<String>(4);
 	}
 
-	
+
 
 
 
@@ -107,8 +107,8 @@ public class FindComponentDep {
 		fcd.makeApplicationClasspath(new File(lib));
 		System.out.println("--->"+fcd.getApplicationClasspath());
 		fcd.execute(packagePath, new String[]{"mysql-connector-java-5.0.5.jar"});
-		
-		
+
+
 		System.out.println("number of dependencies: " + fcd.dependencyList.size());
 		System.out.println("Class File: " + packagePath);
 		for (int i = 0; i < fcd.dependencyList.size(); i++) {
@@ -116,9 +116,9 @@ public class FindComponentDep {
 		}
 
 	}
-	
-	
-	
+
+
+
 
 	/**
 	 * @deprecated use execute(String componentPath, class componentClass)
@@ -139,17 +139,17 @@ public class FindComponentDep {
 	    levelFlag = DepHandler.LEVEL_JAR;
 		handler = new MeandreComponentDepHandler(levelFlag, cp1);
 		ArrayList<String> declaredComponentDependency=null;
-		
-	
+
+
 		if(jjlist!=null){
 			if(jjlist.length!=0){
-				declaredComponentDependency= getDeclaredComponentDependency(jjlist);	
+				declaredComponentDependency= getDeclaredComponentDependency(jjlist);
 			}
 
 		}
-		
-		
-		
+
+
+
 		try {
 			new DepFind().run(cp1,appClasspath, handler);
 		} catch (IOException e) {
@@ -160,7 +160,7 @@ public class FindComponentDep {
 		for (int i = 0; i < handler.getJarList().size(); i++) {
 			dependencyList.add(handler.getJarList().get(i));
 		}
-		
+
 		if(declaredComponentDependency != null){
 			for(int i=0; i < declaredComponentDependency.size();i++){
 			if(!dependencyList.contains(declaredComponentDependency.get(i))){
@@ -169,7 +169,7 @@ public class FindComponentDep {
 			}
 			}
 		}
-		 
+
 		Iterator<String> it = handler.getJarList().iterator();
 		String jarFile = null;
 
@@ -189,11 +189,10 @@ public class FindComponentDep {
                                     }
 
                    System.out.println("++++ " + jarFile +  "--appClasspath: " + appClasspath);
-                   
+
 					new DepFind().run(jarFile, appClasspath,handler2);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (Exception e) {
+					System.out.println("Error: could not parse the jar file: " + jarFile) ;
 				}
 				for (int i = 0; i < handler2.getJarList().size(); i++) {
 					if(!dependencyList.contains(handler2.getJarList().get(i))){
@@ -203,19 +202,19 @@ public class FindComponentDep {
 
 			}
 		}
-		
-		
-		
+
+
+
 	}
 
-	
+
 	private ArrayList<String> getDeclaredComponentDependency(
 			String[] dependencyList) {
 		if(dependencyList==null){
 			return null;
 		}
-		
-		
+
+
 		// lazy instantiate
 		ArrayList<String> declaredDepList = new ArrayList<String>(2);
 		for(int i=0; i < dependencyList.length;i++){
@@ -237,7 +236,7 @@ public class FindComponentDep {
 		if(dependency==null){
 			return null;
 		}
-		
+
 		Iterator<String> it = this.jarList.iterator();
 		dependency = dependency.toLowerCase();
 		String thisDep=null;
@@ -314,9 +313,9 @@ public class FindComponentDep {
 		}
 		return;
 	}
-	
-	
-	
+
+
+
 	/**Return dependency list as an array
 	 *
 	 * @return

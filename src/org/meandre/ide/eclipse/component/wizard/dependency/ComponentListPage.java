@@ -15,6 +15,7 @@ package org.meandre.ide.eclipse.component.wizard.dependency;
 import java.io.File;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -54,6 +55,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.swt.layout.GridLayout;
 
 import org.meandre.annotations.Component;
+import org.meandre.annotations.DetectDefaultComponentAnnotations;
 import org.meandre.ide.eclipse.component.Activator;
 import org.meandre.ide.eclipse.component.preferences.PreferenceConstants;
 import org.meandre.ide.eclipse.component.wizard.dependency.model.ComponentData;
@@ -79,7 +81,8 @@ public class ComponentListPage extends WizardPage implements Listener{
 	TableEditor editor;
 	private Label componentLabel;
 	ArrayList<IFolder> folders;
-
+	private DetectDefaultComponentAnnotations detectAnnotations;
+	
 	protected ComponentListPage(IStructuredSelection selection) {
 		super("Component List");
 		this.targetSelection = selection;
@@ -91,6 +94,7 @@ public class ComponentListPage extends WizardPage implements Listener{
 		hasAspectJ =  prefs.getBoolean(PreferenceConstants.P_HAS_ASPECT_J);
 		storeSource = prefs.getBoolean(PreferenceConstants.P_INCLUDE_SOURCE);
 		folders = new ArrayList<IFolder>(5);
+		detectAnnotations = new DetectDefaultComponentAnnotations();
 
 	}
 
@@ -248,15 +252,21 @@ public class ComponentListPage extends WizardPage implements Listener{
 									System.out.println("[ERROR] className " + className + "  " + ex.getMessage());
 									return;
 								}
-
-								Component componentAnnotation = (Component) claszz.getAnnotation(Component.class);
-								if(componentAnnotation!=null){
+								HashMap<String,Object> annotationHash=
+									detectAnnotations.getComponentClassAnnotationMap(claszz, org.meandre.annotations.Component.class);
+								//Component componentAnnotation = (Component) claszz.getAnnotation(Component.class);
+								if( annotationHash.size()>0){
 									ComponentData cdata = new ComponentData();
 									cdata.setClassName(className);
 									cdata.setSelected(Boolean.FALSE);
 									cdata.setInstalled(Boolean.FALSE);
 									cdata.setType("file");
-									cdata.setName(componentAnnotation.name());
+									Object object =annotationHash.get("name");
+									if(object==null){
+										continue;
+									}
+									String name = (String)object;
+									cdata.setName(name);
 									cdata.setCompilationUnit(ipfcompunit[i]);
 									count++;
 									componentLabel.setText("Found: " + className + " ("+count+")");
