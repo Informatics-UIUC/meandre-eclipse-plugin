@@ -42,7 +42,7 @@ public class _CLASS_ implements ExecutableComponent {
 	final static String DATA_INPUT_2= "string_two";
 	
 
-	@ComponentOutput(description="Output String", name="string_out")
+	@ComponentOutput(description="Output String", name="string_concatenated")
 	final static String DATA_OUTPUT_1= "string_concatenated";
 
 	
