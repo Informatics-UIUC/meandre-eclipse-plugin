@@ -66,13 +66,13 @@ public class CreateWizardAction implements IObjectActionDelegate {
 		project = JavaCore.create(iproject);
 		}
 	
-        /*
+        
 		String complianceLevel=	project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 		if(!complianceLevel.equalsIgnoreCase("1.5")){
 			showMessage("The plugin only supports JDK 1.5. Please change the project's compiler settings.");
 			return;
 		}
-        */
+       
 		Preferences prefs = Activator.getDefault().getPluginPreferences();
 		String url = prefs.getString(PreferenceConstants.P_SERVER);
 		int port = prefs.getInt(PreferenceConstants.P_PORT);

@@ -406,8 +406,8 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 				out.println("Error: name is null "+ fileName);
 				return false;
 			}
-
-			String componentJar = tmpFolder+File.separator+claszz.getName()+".jar";
+			String componentJar = tmpFolder+File.separator+claszz.getName()+"-"+fileName+".jar";
+		
 			out.println("creating component jar file: " + componentJar);
 			out.println("===> " + projectPath + "  " + sourcePath + " " + componentJar + "  "+ resourceList);
 			this.installLabel.setText("Getting component source " + name);

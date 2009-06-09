@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.ui.console.MessageConsole;
@@ -165,22 +166,22 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 				}
 				out.println("class name is: " + className);
 
-                                /*
+                   
 				String complianceLevel=	project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 				if(!complianceLevel.equalsIgnoreCase("1.5")){
 					monitor.worked(100);
 					monitor.subTask("Error: The plugin works with component projects that are JDK 1.5 compliant.\n The current project is compliant with  "+ complianceLevel);
+					out.println("Error: The plugin works with component projects that are JDK 1.5 compliant.\n The current project is compliant with  "+ complianceLevel);
 					Thread.sleep(5000);
 					return;
 				}
-                                */
+				                
 
 
 				try {
 
 					IType itype=project.findType(className);
 					if(itype==null){
-						//showMessage("Error could not get the " + className);
 						out.println("Error could not get the " + className);
 						return;
 					}
@@ -346,7 +347,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						boolean componentJarCreated= Boolean.FALSE;
 						String fileName = componentName.toLowerCase();
 						fileName = fileName.replaceAll("\\s+", "-");
-						String componentJar = System.getProperty("java.io.tmpdir")+File.separator+claszz.getName()+".jar";
+						String componentJar = System.getProperty("java.io.tmpdir")+File.separator+claszz.getName()+"-"+fileName+".jar";
 						out.println("creating component jar file: " + componentJar);
 						//ArrayList<IFile> sourceList = this.projectSourceUtils.getSourceList(outputLocation, classList);
 						try {
@@ -587,8 +588,8 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						String[] jararray = (String[]) dlist
 						.toArray(new String[0]);
 						System.out.println("Jar array is: " + jararray.length);
-						out.println("Uploading " + jararray.length
-								+ " files. Please wait...");
+						out.println("Uploading " + jararray.length+ " files. Please wait...");
+								
 						if(monitor.isCanceled()){
 							return;
 						}
@@ -598,8 +599,8 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 
 
-						ic.uploadComponent(new File(descriptorFileName),
-								overwrite, dump, embed, jararray);
+						ic.uploadComponent(new File(descriptorFileName),overwrite, dump, embed, jararray);
+								
 						monitor.worked(100);
 						monitor.done();
 
