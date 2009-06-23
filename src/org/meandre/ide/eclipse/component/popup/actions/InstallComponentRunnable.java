@@ -362,8 +362,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 									storeSource,
 									classList);
 						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							out.println("[ERROR] "+ e1.getMessage());
+							out.println("[ERROR] While creating component jar"+ e1.getMessage());
 							e1.printStackTrace();
 							return;
 						}
@@ -391,21 +390,6 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						// now create the applets if needed
 						ComponentNatureHandler componentNatureHandler = new ComponentNatureHandler(project,out);
 						ArrayList<ComponentAppletBean> appletList = new ArrayList<ComponentAppletBean>(3);
-						/*if(componentNatures !=null){
-							for( ComponentNature cn:componentNatures.natures()){
-									if(!checkIfClassInLibraryClasspath(cn.extClass().getName(),urlClassloaderWithoutBin )){
-										ComponentAppletBean cab=	componentNatureHandler.getComponentAppletBean(cn);
-										if(cab!=null){
-											appletList.add(cab);
-										}
-									}else{
-										out.println("The class " + cn.extClass().getName() + " is in the library path. Please remove the " +
-												" offending jar file from the project classpath before continuing");
-										return;
-									}
-								}
-							}
-						 	*/
 						if(componentNatureMap!=null){
 							for(ComponentNature componentNature: componentNatureMap.values()){
 							ComponentAppletBean cab=	componentNatureHandler.getComponentAppletBean(componentNature);
@@ -499,8 +483,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 						while (it1.hasNext()) {
 							jarDependency = it1.next();
-							System.out.println("Found following dependencies: "
-									+ jarDependency);
+							System.out.println("Found following dependencies: "+ jarDependency);
 							out.println(jarDependency);
 							message = message + " " + jarDependency;
 						}
@@ -511,13 +494,13 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 						//	ccd.init(claszz);
 						//	descriptorFileName = ccd.process();
-						//	message = " Desriptor created "
+						//	message = " Descriptor created "
 						//		+ descriptorFileName;
 						//	out.println("Descriptor created: "
 						//			+ descriptorFileName);
 
 						descriptorFileName=this.writeToFile(rdfContent,tmpFolder,claszz.getName(), claszz.getSimpleName());
-						message = " Desriptor created " + fileName;
+						message = " Descriptor created " + fileName;
 
 
 
@@ -536,8 +519,8 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						monitor.subTask("getting ready to upload components");
 						Thread.sleep(1000);
 
-						String url = prefs
-						.getString(PreferenceConstants.P_SERVER);
+						String url = prefs.getString(PreferenceConstants.P_SERVER);
+						
 						int port = prefs.getInt(PreferenceConstants.P_PORT);
 						if (url == null) {
 							out.println("Missing Server location.");
@@ -557,36 +540,35 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						if (url.endsWith("/")) {
 							url = url.substring(0, url.length() - 1);
 						}
+						
+						String jarInfoUrl=null;
 
 						if(Activator.getServerVersion().startsWith("1.3")){
+							jarInfoUrl = url+":"+port+"/"+MeandreEngineServicesConstants.JAR_INFO_URL;
 							url = url
 									+ ":"
 									+ port+"/"
 									+ MeandreEngineServicesConstants.ADD_REPOSITORY_URL_1_3;
 							}else{
+								jarInfoUrl = url+":"+port+"/"+MeandreEngineServicesConstants.JAR_INFO_URL;
 								url = url
 								+ ":"
 								+ port + "/"
 								+ MeandreEngineServicesConstants.ADD_REPOSITORY_URL_1_4;
 							}
-						String port_s = prefs
-						.getString(PreferenceConstants.P_PORT);
-						String username = prefs
-						.getString(PreferenceConstants.P_LOGIN);
-						String password = prefs
-						.getString(PreferenceConstants.P_PASSWORD);
-						boolean embed = prefs
-						.getBoolean(PreferenceConstants.P_EMBED);
-						boolean overwrite = prefs
-						.getBoolean(PreferenceConstants.P_OVERWRITE);
+						
+						String port_s = prefs.getString(PreferenceConstants.P_PORT);
+						String username = prefs.getString(PreferenceConstants.P_LOGIN);
+						String password = prefs.getString(PreferenceConstants.P_PASSWORD);
+						boolean embed = prefs.getBoolean(PreferenceConstants.P_EMBED);
+						boolean overwrite = prefs.getBoolean(PreferenceConstants.P_OVERWRITE);
+						
 
 						boolean dump = Boolean.FALSE;
 
-						InstallComponent ic = new InstallComponent(url, port,
-								username, password);
+						InstallComponent ic = new InstallComponent(url, jarInfoUrl,port,username, password);
 						ic.init(dlist);
-						String[] jararray = (String[]) dlist
-						.toArray(new String[0]);
+						String[] jararray = (String[]) dlist.toArray(new String[0]);
 						System.out.println("Jar array is: " + jararray.length);
 						out.println("Uploading " + jararray.length+ " files. Please wait...");
 								
@@ -596,8 +578,6 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						monitor.worked(80);
 						monitor.subTask("Uploading component " + descriptorFileName +" and #" +jararray.length + " jars" );
 						Thread.sleep(1000);
-
-
 
 						ic.uploadComponent(new File(descriptorFileName),overwrite, dump, embed, jararray);
 								

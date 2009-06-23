@@ -11,7 +11,7 @@
 package org.meandre.ide.eclipse.component.popup.actions;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
+
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -142,8 +142,7 @@ public class InstallComponentAction implements IObjectActionDelegate, IEditorAct
 			
 				if(hasJavaNature){
 				project = JavaCore.create(f.getProject());
-				unit = 
-				      JavaCore.createCompilationUnitFrom(f);
+				unit = JavaCore.createCompilationUnitFrom(f);
 				System.out.println(unit);
 				}
 			}

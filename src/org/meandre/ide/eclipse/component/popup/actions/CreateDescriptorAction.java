@@ -146,14 +146,14 @@ public class CreateDescriptorAction implements IObjectActionDelegate, IEditorAct
 			CreateDefaultComponentDescriptor cdcd = new CreateDefaultComponentDescriptor();
 			String rdfContent =cdcd.process(claszz);
 			String fileName=this.writeToFile(rdfContent, componentDescriptorFolder,claszz.getName(), claszz.getSimpleName());
-			message = " Desriptor created " + fileName;
+			message = " Descriptor created " + fileName;
 			
 			/*
 			if(componentAnnotation!=null){	
 				CreateComponentDescriptor ccd = new CreateComponentDescriptor(componentDescriptorFolder);
 				ccd.init(claszz);
 				descriptorFileName=  ccd.process();
-				message = " Desriptor created " + descriptorFileName;
+				message = " Descriptor created " + descriptorFileName;
 			}else{
 				message  = " The class " + className +"  is not a valid component.";
 				out.println("[Error] " + message);

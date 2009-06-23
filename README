@@ -155,7 +155,7 @@ September 5th 2008 [CRITICAL] DONE September 5th 2008
  ==============1.2.7=====================Jan 13th 2009===========================================
  #112 Reconciled documentation that Loretta had done on the seasr website.
  ==============1.2.7 -rerelease=====================Jan 15th 2009================================
- Release for Benie hack job...
+ Release for Bernie hack job...
  ==============1.2.8 release=====================Feb 22nd 2009================================
 #113 remove @ComponentNatures annotation. [Amit] -March 4th 2009
 #114 Add support for 1.4.3 library. [Amit]  March 4th 2009
@@ -164,3 +164,8 @@ September 5th 2008 [CRITICAL] DONE September 5th 2008
 #117 Support for inheritance in component annotation [Bernie and Mike] Feb 22nd 2009
 #118 Updated the annotation parser to support inheritance. [Amit] Feb 22nd 2009
 =================1.2.9=========================March 4th 2009=====================================
+#119 Support for 1.4.5 version of the Meandre server [Amit] June 22nd 2009
+#120 Send only jars that have changed or the new jars, reuse the jars already present on the server. -1.4.7 [Amit] June 22nd 2009
+#121 Minor typo [Borice] June 23rd 2009
+#122 Bug fix for duplicate entry error [Loretta and Borice]June 23rd 2009
+==========================1.3.0================June 23rd 2009=====================================

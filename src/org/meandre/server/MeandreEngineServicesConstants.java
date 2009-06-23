@@ -24,8 +24,8 @@ public class MeandreEngineServicesConstants {
 
 
 	//change this when you add new library
-	public static String defaultLibraryString="1.4.3 (1.4.3v)";
-	public static String defaultLibraryStringShort="1.4.3";
+	public static String defaultLibraryString="1.4.5 (1.4.5v)";
+	public static String defaultLibraryStringShort="1.4.5";
 
 
 	public static final String DEFAULT_SERVER ="127.0.0.1";
@@ -36,6 +36,7 @@ public class MeandreEngineServicesConstants {
 	public static final String MIN_SERVER_VER ="1.2";
 	// this plugin should be running on the server
 	public static final String REQUIRED_SERVER_PLUGIN_KEY="JARTOOL";
+	public static final String JAR_INFO_URL = "plugins/jar";
 
 
 

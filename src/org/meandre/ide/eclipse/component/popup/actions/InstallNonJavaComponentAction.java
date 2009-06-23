@@ -58,10 +58,8 @@ public class InstallNonJavaComponentAction implements IObjectActionDelegate {
 		System.out.println("Run... " + this.getClass().getName());
 		Model m = ModelFactory.createDefaultModel();
 		
-		    String tmpFolder = System.getProperty("java.io.tmpdir");
-			Preferences prefs = Activator.getDefault().getPluginPreferences();
+		  	Preferences prefs = Activator.getDefault().getPluginPreferences();
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			String baseFolder = workspace.getRoot().getLocation().toPortableString();
 			if (targetSelection instanceof IStructuredSelection) {
 				Object object = ((IStructuredSelection) targetSelection)
 						.getFirstElement();
@@ -103,39 +101,37 @@ public class InstallNonJavaComponentAction implements IObjectActionDelegate {
 			if (url.endsWith("/")) {
 				url = url.substring(0, url.length() - 1);
 			}
-
+			String jarInfoUrl;
 			if(Activator.getServerVersion().startsWith("1.3")){
+			jarInfoUrl = url+":"+port+"/"+MeandreEngineServicesConstants.JAR_INFO_URL;
 			url = url
 					+ ":"
 					+ port + "/"
 					+ MeandreEngineServicesConstants.ADD_REPOSITORY_URL_1_3;
 			}else{
+				jarInfoUrl = url+":"+port+"/"+MeandreEngineServicesConstants.JAR_INFO_URL;
 				url = url
 				+ ":"
 				+ port +"/"
 				+ MeandreEngineServicesConstants.ADD_REPOSITORY_URL_1_4;
 			}
-			String port_s = prefs
-					.getString(PreferenceConstants.P_PORT);
-			String username = prefs
-					.getString(PreferenceConstants.P_LOGIN);
-			String password = prefs
-					.getString(PreferenceConstants.P_PASSWORD);
-			boolean embed = prefs
-					.getBoolean(PreferenceConstants.P_EMBED);
-			boolean overwrite = prefs
-					.getBoolean(PreferenceConstants.P_OVERWRITE);
-
+			String port_s = prefs.getString(PreferenceConstants.P_PORT);
+			String username = prefs.getString(PreferenceConstants.P_LOGIN);
+			String password = prefs.getString(PreferenceConstants.P_PASSWORD);
+			boolean embed = prefs.getBoolean(PreferenceConstants.P_EMBED);
+			boolean overwrite = prefs.getBoolean(PreferenceConstants.P_OVERWRITE);
 			boolean dump = Boolean.FALSE;
-			InstallComponent ic = new InstallComponent(url, port,username, password);
+			
+			
+			InstallComponent ic = new InstallComponent(url, jarInfoUrl,port,username, password);
 			boolean success=ic.uploadComponent(new File( workspacePath +File.separator +location.toOSString()),
 					overwrite, dump, embed, null);
 			
-			if(success){
-				showMessage("Component Uploaded.");
-			}else{
-				showMessage("Error uploading component. ");
-			}
+				if(success){
+					showMessage("Component Uploaded.");
+				}else{
+					showMessage("Error uploading component. ");
+				}
 					
 			}else{
 				showMessage("Select the rdf from the package explorer view.");

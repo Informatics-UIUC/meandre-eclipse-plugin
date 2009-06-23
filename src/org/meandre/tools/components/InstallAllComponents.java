@@ -181,8 +181,8 @@ public class InstallAllComponents {
 
         int serverport_i = Integer.parseInt(serverport);
 
-        InstallComponent icomponent = new InstallComponent(serverurl,
-                serverport_i, serverlogin, serverpassword);
+        InstallComponent icomponent = new InstallComponent(serverurl, serverurl, serverport_i, serverlogin, serverpassword);
+              
         icomponent.init(libraryResourcesDir);
 
         itPackage = packageList.iterator();

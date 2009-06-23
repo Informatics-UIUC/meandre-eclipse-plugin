@@ -99,6 +99,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 	boolean stopInstall = false;
 	private Shell shell;
 	String url;
+	String jarInfoUrl;
 	int port;
 	String username;
 	String password;
@@ -129,10 +130,12 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 		if (url.endsWith("/")) {
 			url = url.substring(0, url.length() - 1);
 		}
-
+		
 		if(Activator.getServerVersion().startsWith("1.3")){
+		jarInfoUrl=url+":"+port+"/"+MeandreEngineServicesConstants.JAR_INFO_URL;
 		url = url+ ":"+ port+ "/"+ MeandreEngineServicesConstants.ADD_REPOSITORY_URL_1_3;
 		}else{
+		jarInfoUrl=url+":"+port+"/"+MeandreEngineServicesConstants.JAR_INFO_URL;
 		url = url+ ":"+ port+ "/"+ MeandreEngineServicesConstants.ADD_REPOSITORY_URL_1_4;
 		}
 		String port_s = prefs.getString(PreferenceConstants.P_PORT);
@@ -595,7 +598,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 
 			this.installLabel.setText("Uploading "+dlist.size()+" component jars: " + name);
 
-			InstallComponent ic = new InstallComponent(url, port,username, password);
+			InstallComponent ic = new InstallComponent(url, jarInfoUrl, port,username, password);
 			ic.init(dlist);
 			String[] jararray = (String[]) dlist
 			.toArray(new String[0]);

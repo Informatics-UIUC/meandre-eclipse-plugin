@@ -204,6 +204,7 @@ public class ComponentJarUtils {
 		try {
 			new DepFind().run(cp1, appClasspath, handler);
 		} catch (IOException e) {
+			
 			e.printStackTrace();
 		}
 		//	System.out.println("Handler Size: "+handler.getJarList().size());
@@ -251,13 +252,13 @@ public class ComponentJarUtils {
 		MessageConsoleStream out = mc.newMessageStream();
 		out.println("In create component jar function >" + jarFile);
 		File outFile = new File(jarFile);
-		out.println("After outFile >" + jarFile);
 		out.println("Before creating DepHandler>>> " + componentClass);
 
 		MeandreComponentDepHandler handler = new MeandreComponentDepHandler(
 				DepHandler.LEVEL_CLASS, componentClass);
 		out.println("After creating DepHandler " + componentClass);
 		findComponentDep(componentClass, outputLocation,handler, Boolean.TRUE,classList);
+		
 		if (classList.keySet().size() == 0) {
 			return Boolean.FALSE;
 		}
@@ -336,6 +337,7 @@ public class ComponentJarUtils {
 			className = it.next();
 			fname = className;
 			bi = new BufferedInputStream(new FileInputStream(fname));
+			
 			String jarEntry = className.replace(outputLocation+File.separator, "");
 			jarEntry = jarEntry.replace(File.separatorChar, '/');
 
@@ -402,7 +404,6 @@ public class ComponentJarUtils {
 			String jarEntry =resourceFile.replace(projectPath +sourcePath, "");
 			je = new JarEntry(jarEntry);
 			jo.putNextEntry(je);
-
 			byte[] buf = new byte[1024];
 			int anz;
 

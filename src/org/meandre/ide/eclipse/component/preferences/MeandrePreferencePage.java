@@ -75,7 +75,9 @@ public class MeandrePreferencePage
 		addField(new BooleanFieldEditor(PreferenceConstants.P_INCLUDE_SOURCE,"&Package Source with the Component ",getFieldEditorParent()));
 		
 		addField(new BooleanFieldEditor(PreferenceConstants.P_CREATE_PACKAGE_PATH,"&Descriptor -Create in package directory",getFieldEditorParent()));
-			
+		
+		addField(new BooleanFieldEditor(PreferenceConstants.P_SEND_JARS_THAT_CHANGED,"&Dependency -Send only changes",getFieldEditorParent()));
+		
 		
 		
 	}

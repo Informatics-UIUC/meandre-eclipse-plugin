@@ -63,9 +63,7 @@ public class ProjectSourceUtils {
 			// red or black
 			if(hasJavaNature){
 				// double or nothing
-				System.out.println("Is a Java Project: " + projects[i].getName());
 				IJavaProject ijp=  JavaCore.create( projects[i]);
-
 				try {
 					Iterator<String> it = classList.keySet().iterator();
 					if(totalSourceCount!=0){
@@ -81,19 +79,16 @@ public class ProjectSourceUtils {
 
 								IType itype=ijp.findType(componentEntity);
 								if(itype!=null){
-									System.out.println(itype.toString());
 									IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(itype.getPath());
-
 									// know when to stop
 									sourceListCollector.put(componentEntity, "true");
 									// deposit
 									String ss=file.getFullPath().toOSString();
+									if(!ss.endsWith(".jar")){
 									sourceFiles.add(file);
-
-									totalSourceCount--;						
+									totalSourceCount--;		
+									}
 									//foundSource = Boolean.TRUE;
-								}else{
-									System.out.println("Error: itype is null" );
 								}	
 
 							}

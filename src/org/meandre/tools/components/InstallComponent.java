@@ -10,18 +10,27 @@
  */
 package org.meandre.tools.components;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -30,7 +39,7 @@ import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
-import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.meandre.client.TransmissionException;
 
 /**This program takes the rdf descriptor and  list of jar file dependencies
  * and uploads them to the meandre repository
@@ -56,14 +65,17 @@ public class InstallComponent {
 	private static String username;
 	private static String password;
 	private static String meandreUploadUrl="http://127.0.0.1:1714/services/repository/add.json";
+	private static String meandreJarInfoUrl="http://127.0.0.1:1714/";
 	private static int port=1714;
 	HttpClient client;
 	
 
-	public InstallComponent(String url, int port,String username, String password){
+	public InstallComponent(String url, String jarInfoUrl,int port,String username, String password){
 		InstallComponent.username = username;
 		InstallComponent.password = password;
 		InstallComponent.meandreUploadUrl = url;
+		InstallComponent.meandreJarInfoUrl = jarInfoUrl;
+		//String  = "plugins/jar/" + jarFile + "/info";
 		InstallComponent.port = port;
 		client= new HttpClient();
 		client.getState().setCredentials(new AuthScope(null, port, null),
@@ -95,8 +107,6 @@ public class InstallComponent {
 
 
 	public static void main(String[] args) throws Exception {
-
-
 		String username = "admin";
 		String password = "admin";
 		String url = "http://127.0.0.1:1714/services/repository/add.rdf";
@@ -130,7 +140,7 @@ public class InstallComponent {
 			System.exit(0);
 		}
 
-		InstallComponent icomponent = new InstallComponent(url, port,username, password);
+		InstallComponent icomponent = new InstallComponent(url,"http://127.0.0.1:1714/plugins/", port,username, password);
 		icomponent.init(libraryResourcesDir);
 		boolean bool =icomponent.uploadComponent(componentRdfFile, overwrite,dump,embed,jarDependencies);
 		System.out.println("Uploaded: " +bool);
@@ -175,15 +185,45 @@ public class InstallComponent {
 		}
 		File jarFile = null;
 		int count = 4;
+		String infoUrl =this.meandreJarInfoUrl;
+		String tmpFolder = System.getProperty("java.io.tmpdir");
+		
 		for (int i = 0; i < numJars; i++) {
 			jarFile = appJarList.get(jarDependencies[i]);
+			String localMD5 = getMD5(jarFile);
+			infoUrl = this.meandreJarInfoUrl+"/"+localMD5+".md5"+"/info";
+			String serverSideFileName=getServerSideJarFile(infoUrl,jarFile.getName());
+			//System.out.println("LOCAL MD5: " + localMD5  + "  SERVER SIDE Jar Files:  " + serverSideFileName + " LOCAL JARFILE: " + jarFile);
+			
 			if (jarFile != null) {
+				if(serverSideFileName!=null){
+				//System.out.println("NOW creating and SENDING 0 BYTE FILE and SENDING IT");
+				 // create a file with 0 bytes and send that instead of the new file	
+				File file = new File(tmpFolder+File.separator+serverSideFileName);
 				try {
-					parts[count] = new FilePart("context", jarFile);
+					file.createNewFile();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				try {
+					parts[count] = new FilePart("context",file);
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
+				// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			
+				
+				}else{
+					try {
+						parts[count] = new FilePart("context", jarFile);
+					} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+				
+				
 				count++;
 			} else {
 				System.out.println("Error: Could not get > "+ jarDependencies[i]);
@@ -260,7 +300,116 @@ public class InstallComponent {
 		}
 	}
 	
+	/**Returns the server filename for the jar file present on the server
+	 * 
+	 * @param jarFile
+	 * @return
+	 */
+	private String getServerSideJarFile(String sRestCommand,String jarFile) {
+		String jarInfo=null;
+		String serverfileName=null;
+		try {
+			Set<NameValuePair> nvps = new HashSet<NameValuePair>();
+			jarInfo = executeGetRequestString(sRestCommand, nvps);
+		} catch (TransmissionException e) {
+			System.out.println(e.getMessage());
+		}
+		if(jarInfo!=null){
+			StringTokenizer stok = new StringTokenizer(jarInfo,"|");
+			HashMap<String,String> hm = new HashMap<String,String>(7);
+			while(stok.hasMoreTokens()){
+				String[] split = stok.nextToken().split("=");
+				if(split.length==2){
+				hm.put(split[0], split[1]);
+				}
+			}
+			serverfileName= hm.get("name");
+		}
+		
+		if(serverfileName!=null){
+			//System.out.println("SERVER FILE NAME IS: " +serverfileName);
+			return serverfileName;
+		}
+		
+		return null;
+	}
+
+	private String executeGetRequestString(String restCommand,
+			Set<NameValuePair> nvps) throws TransmissionException {
+		   try {
+		        byte[] baRetrieved = executeGetRequestBytes(restCommand, nvps);
+		        String sRetrieved = new String(baRetrieved, "UTF-8");
+		        return sRetrieved;
+		    } catch (UnsupportedEncodingException e) {
+		        throw new TransmissionException(
+		                "Server response couldn't be converted to UTF-8 text", e);
+		    }catch(TransmissionException e){
+		        throw e;
+		    }
+	}
+
+	private byte[] executeGetRequestBytes(String sRestCommand,
+			Set<NameValuePair> queryParams) throws TransmissionException {
+		GetMethod get = new GetMethod();
+		get.setPath(sRestCommand);
+		get.setDoAuthentication(true);
+		if(queryParams != null){
+		    NameValuePair[] nvp = new NameValuePair[queryParams.size()]; 
+		    nvp = queryParams.toArray(nvp);
+		    get.setQueryString(nvp);
+		}
+		byte[] baResponse = null;
+		try{
+			System.out.println("executing get:" + get.getURI());
+			client.executeMethod(get);
+			baResponse = get.getResponseBody();
+		}catch(Exception e){
+		    e.printStackTrace();
+			throw new TransmissionException(e);
+		}
+		return baResponse;
+	}
+
+
+    private String getMD5(File file) {
+        byte[] bytes=null;                                                                                                                                              
+        try {                                                                                                                                                           
+                bytes=createChecksum(file);                                                                                                                             
+        } catch (Exception e) {                                                                                                                                         
+                ByteArrayOutputStream boas = new ByteArrayOutputStream();                                                                                               
+                e.printStackTrace(new PrintStream(boas));                                                                                                               
+               System.out.println(boas.toString());                                                                                                                           
+        }                                                                                                                                                               
+        if(bytes==null){                                                                                                                                                
+                return null;                                                                                                                                            
+        }else if(bytes.length==0){                                                                                                                                      
+                return null;                                                                                                                                            
+        }                                                                                                                                                               
+        String hexString=null;                                                                                                                                          
+        try {                                                                                                                                                           
+        hexString=      StringUtils.getHexString(bytes);                                                                                                                
+        } catch (UnsupportedEncodingException e) {                                                                                                                      
+                ByteArrayOutputStream boas = new ByteArrayOutputStream();                                                                                               
+                e.printStackTrace(new PrintStream(boas));                                                                                                               
+              System.out.println(boas.toString());                                                                                                                           
+        }                                                                                                                                                               
+        return hexString;                                                                                                                                               
+}        
+    
+    public  byte[] createChecksum(File file) throws Exception{                                                                                                                     
+                InputStream fis =  new FileInputStream(file);                                                                                                                   
+                byte[] buffer = new byte[1024];                                                                                                                                 
+                MessageDigest complete = MessageDigest.getInstance("MD5");                                                                                                      
+                int numRead;                                                                                                                                                    
+                do {                                                                                                                                                            
+                        numRead = fis.read(buffer);                                                                                                                             
+                        if (numRead > 0) {                                                                                                                                      
+                                complete.update(buffer, 0, numRead);                                                                                                            
+                        }                                                                                                                                                       
+                } while (numRead != -1);                                                                                                                                        
+                fis.close();                                                                                                                                                    
+                return complete.digest();                                                                                                                                       
+}
+ 
 	
-
-
 }

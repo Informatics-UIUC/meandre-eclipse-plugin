@@ -29,6 +29,7 @@ public class PreferenceConstants {
 	public static final String P_HAS_ASPECT_J = "hasAspectJ";
 	public static final String P_INCLUDE_SOURCE = "includeSource";
 	public static final String P_CREATE_PACKAGE_PATH = "packagePath";
+	public static final String P_SEND_JARS_THAT_CHANGED = "jarsDelta";
 	
 	
 }

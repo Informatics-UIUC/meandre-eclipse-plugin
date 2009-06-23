@@ -296,14 +296,10 @@ public class Activator extends AbstractUIPlugin {
 	public static void putComponentInfo(String jarLocation,
 			String componentJarInfo) {
 		//System.out.println("MANIFEST is: "+ componentJarInfo);
-		
 		if(componentInfoHashMap.get(jarLocation) != null){
 			componentInfoHashMap.remove(jarLocation);
 		}
-		
-		
-		componentInfoHashMap.put(jarLocation,
-				getComponentObject(componentJarInfo));
+		componentInfoHashMap.put(jarLocation,getComponentObject(componentJarInfo));
 		
 	}
 
