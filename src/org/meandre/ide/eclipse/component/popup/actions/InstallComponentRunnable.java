@@ -232,6 +232,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 
 					URLClassLoader urlClassloader=ProjectClassLoader.getProjectClassLoader(project,hasAspectJ);
+					
 					if(urlClassloader==null){
 						out.println("Error: Project Classpath is null...");
 						return;
@@ -352,6 +353,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						//ArrayList<IFile> sourceList = this.projectSourceUtils.getSourceList(outputLocation, classList);
 						try {
 							componentJarCreated=this.componentUtils.createComponentJar(claszz,
+									project,
 									componentPath,
 									outputLocation,
 									projectPath,
@@ -362,7 +364,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 									storeSource,
 									classList);
 						} catch (IOException e1) {
-							out.println("[ERROR] While creating component jar"+ e1.getMessage());
+							out.println("[ERROR] While creating component jar: "+ e1.getMessage());
 							e1.printStackTrace();
 							return;
 						}
@@ -562,6 +564,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						String password = prefs.getString(PreferenceConstants.P_PASSWORD);
 						boolean embed = prefs.getBoolean(PreferenceConstants.P_EMBED);
 						boolean overwrite = prefs.getBoolean(PreferenceConstants.P_OVERWRITE);
+						boolean uploadOnlyChangedJars = prefs.getBoolean(PreferenceConstants.P_SEND_JARS_THAT_CHANGED);
 						
 
 						boolean dump = Boolean.FALSE;
@@ -579,7 +582,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						monitor.subTask("Uploading component " + descriptorFileName +" and #" +jararray.length + " jars" );
 						Thread.sleep(1000);
 
-						ic.uploadComponent(new File(descriptorFileName),overwrite, dump, embed, jararray);
+						ic.uploadComponent(new File(descriptorFileName),overwrite, dump, embed,uploadOnlyChangedJars, jararray);
 								
 						monitor.worked(100);
 						monitor.done();

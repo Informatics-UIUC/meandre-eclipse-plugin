@@ -27,6 +27,7 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.meandre.annotations.ComponentInput;
@@ -232,6 +233,7 @@ public class ComponentJarUtils {
 	 * This function creates a component jar file; that has all the classes the
 	 * component depends upon
 	 * @param claszz
+	 * @param project 
 	 *
 	 * @param cp1
 	 * @param appClasspath
@@ -240,7 +242,7 @@ public class ComponentJarUtils {
 	 * @throws IOException
 	 */
 	public boolean createComponentJar(Class claszz,
-			String componentClass, String outputLocation,
+			IJavaProject project, String componentClass, String outputLocation,
 			String projectPath,String sourcePath,
 			String jarFile,ArrayList<String> resourceList,
 			String componentVersion,
@@ -262,7 +264,7 @@ public class ComponentJarUtils {
 		if (classList.keySet().size() == 0) {
 			return Boolean.FALSE;
 		}
-		ArrayList<IFile> sourceList = this.projectSourceUtils.getSourceList(outputLocation, classList);
+		ArrayList<IFile> sourceList = this.projectSourceUtils.getSourceList(project,outputLocation, classList);
 		String getInterfaceList = getInterfaceList(claszz);
 		HashMap<String,MethodDataType> hmDataType = getDataType(componentClass);
 		BufferedOutputStream bo = new BufferedOutputStream(new FileOutputStream(outFile));

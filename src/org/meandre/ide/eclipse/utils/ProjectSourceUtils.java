@@ -38,22 +38,43 @@ public class ProjectSourceUtils {
 	
 	/**
 	 * 
+	 * @param project 
 	 * @param appBinPath
 	 * @return
 	 */ 
-	public ArrayList<IFile> getSourceList(String appBinPath,HashMap<String,String> classList) {
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		IProject[]  projects=workspace.getRoot().getProjects();
+	public ArrayList<IFile> getSourceList(IJavaProject project, String appBinPath,HashMap<String,String> classList) {
+		/*
+		IProject[] dependentProjects = null;
+		try {
+			dependentProjects = (project.getProject()).getReferencedProjects();
+		} catch (CoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		*/
+		 IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		/*DON"T LOOK FOR ALL THE PROJECTS ONLY THE ONES REFERENCED*/
+		 IProject[] projects=workspace.getRoot().getProjects();
+		/*ArrayList<IProject> projectList = new ArrayList<IProject>();
+		projectList.add((IProject) project);
+		if(dependentProjects!=null){
+			for(IProject tmpProject:dependentProjects){
+				projectList.add(tmpProject);
+			}
+		}
+		*/
+		
 		HashMap <String, String> sourceListCollector = new HashMap<String,String>();
 		ArrayList <IFile> sourceFiles = new ArrayList<IFile>();
 		int totalSourceCount = classList.keySet().size();
 
 
-		for(int i=0; i < projects.length;i++){
+		for(IProject thisProject:projects){
 			boolean hasJavaNature=false;
 			try {
-				if(projects[i].isOpen()){
-					hasJavaNature=projects[i].hasNature("org.eclipse.jdt.core.javanature");
+				if(thisProject.isOpen()){
+					hasJavaNature=thisProject.hasNature("org.eclipse.jdt.core.javanature");
+					System.out.println("Number of references projects: "+thisProject.getReferencedProjects().length);
 				}
 			} catch (CoreException e) {
 				// TODO Auto-generated catch block
@@ -63,7 +84,7 @@ public class ProjectSourceUtils {
 			// red or black
 			if(hasJavaNature){
 				// double or nothing
-				IJavaProject ijp=  JavaCore.create( projects[i]);
+				IJavaProject ijp=  JavaCore.create( thisProject);
 				try {
 					Iterator<String> it = classList.keySet().iterator();
 					if(totalSourceCount!=0){
@@ -104,7 +125,7 @@ public class ProjectSourceUtils {
 				}
 
 			}else{
-				System.out.println("Not a Java Project: " + projects[i].getName());
+				System.out.println("Not a Java Project: " + thisProject.getName());
 			}
 
 

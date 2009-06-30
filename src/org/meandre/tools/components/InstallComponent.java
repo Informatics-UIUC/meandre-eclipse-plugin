@@ -142,10 +142,10 @@ public class InstallComponent {
 
 		InstallComponent icomponent = new InstallComponent(url,"http://127.0.0.1:1714/plugins/", port,username, password);
 		icomponent.init(libraryResourcesDir);
-		boolean bool =icomponent.uploadComponent(componentRdfFile, overwrite,dump,embed,jarDependencies);
+		boolean bool =icomponent.uploadComponent(componentRdfFile, overwrite,dump,embed,false,jarDependencies);
 		System.out.println("Uploaded: " +bool);
 		
-		bool =icomponent.uploadComponent(componentRdfFile, overwrite,dump,embed,jarDependencies);
+		bool =icomponent.uploadComponent(componentRdfFile, overwrite,dump,embed,false,jarDependencies);
 		System.out.println("Uploaded: " +bool);
 		
 		icomponent.reset();
@@ -159,7 +159,7 @@ public class InstallComponent {
 	 * @return
 	 */
 	public boolean uploadComponent(File componentRdfFile,boolean overwrite ,
-		   boolean dump,boolean embed,String[] jarDependencies){
+		   boolean dump,boolean embed,boolean uploadOnlyChangedJar,String[] jarDependencies){
 		PostMethod filePost;
 		filePost= new PostMethod(meandreUploadUrl);
 		int arrayLen=0;
@@ -192,9 +192,12 @@ public class InstallComponent {
 			jarFile = appJarList.get(jarDependencies[i]);
 			String localMD5 = getMD5(jarFile);
 			infoUrl = this.meandreJarInfoUrl+"/"+localMD5+".md5"+"/info";
-			String serverSideFileName=getServerSideJarFile(infoUrl,jarFile.getName());
-			//System.out.println("LOCAL MD5: " + localMD5  + "  SERVER SIDE Jar Files:  " + serverSideFileName + " LOCAL JARFILE: " + jarFile);
+			// check if the jar file is already present
+			String serverSideFileName=null;
 			
+			if(uploadOnlyChangedJar){
+				serverSideFileName=getServerSideJarFile(infoUrl,jarFile.getName());
+			}
 			if (jarFile != null) {
 				if(serverSideFileName!=null){
 				//System.out.println("NOW creating and SENDING 0 BYTE FILE and SENDING IT");
@@ -265,9 +268,7 @@ public class InstallComponent {
 				componentBuffer.append(buffer, 0, charsRead);
 			}
 			componentBuffer.trimToSize(); // trim the backing buffer to the true size so memory isn't wasted
-			System.out.println(" Component BUFFER IS : " + componentBuffer.toString());
-
-			
+					
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

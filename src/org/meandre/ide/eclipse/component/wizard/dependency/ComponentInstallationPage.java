@@ -106,6 +106,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 	boolean embed;
 	boolean overwrite;
 	boolean packagePath= true;
+	boolean uploadOnlyChangedJars  =false;
 
 	protected ComponentInstallationPage() {
 		super("Component Installation List");
@@ -144,6 +145,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 		embed = prefs.getBoolean(PreferenceConstants.P_EMBED);
 		overwrite = prefs.getBoolean(PreferenceConstants.P_OVERWRITE);
 		packagePath=prefs.getBoolean(PreferenceConstants.P_CREATE_PACKAGE_PATH);
+		uploadOnlyChangedJars = prefs.getBoolean(PreferenceConstants.P_SEND_JARS_THAT_CHANGED);
 	}
 
 	public void createControl(Composite parent) {
@@ -340,6 +342,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 			out.println("[INFO] 8 componentEntity " +  componentEntity);
 
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(itype.getPath());
+			IJavaProject project = (IJavaProject) file.getProject().getAdapter(IJavaProject.class);
 			IPath parentFile =file.getParent().getLocation();
 			projectPath =  new File(workspacePath + getJavaProject().getPath().toOSString()).getAbsolutePath();
 			String sourcePath = getComponentSourceLocation(getJavaProject(), getJavaProject().getPath().toOSString(),componentEntity);
@@ -418,7 +421,8 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 			this.installLabel.setText("Creating component jar package: " + name);
 			this.installprogressBar.setSelection(progress++);
 			try {
-				componentJarCreated=this.componentUtils.createComponentJar(claszz,
+				componentJarCreated=this.componentUtils.createComponentJar(claszz, 
+						project,
 						componentPath,
 						outputLocation,
 						projectPath,
@@ -604,7 +608,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 			.toArray(new String[0]);
 			System.out.println("Jar array is: " + jararray.length);
 			out.println("Uploading " + jararray.length+ " files. Please wait...");
-			ic.uploadComponent(new File(descriptorFileName),overwrite, dump, embed, jararray);
+			ic.uploadComponent(new File(descriptorFileName),overwrite, dump, embed,uploadOnlyChangedJars, jararray);
 			this.installprogressBar.setSelection(progress++);
 		} catch (JavaModelException e) {
 			if(displayMessageAndAskToContinue(name,className," error uploading jar file. "+ e.getMessage() )){

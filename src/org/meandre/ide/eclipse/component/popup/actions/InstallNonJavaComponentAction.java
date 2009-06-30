@@ -121,11 +121,13 @@ public class InstallNonJavaComponentAction implements IObjectActionDelegate {
 			boolean embed = prefs.getBoolean(PreferenceConstants.P_EMBED);
 			boolean overwrite = prefs.getBoolean(PreferenceConstants.P_OVERWRITE);
 			boolean dump = Boolean.FALSE;
+			boolean uploadOnlyChangedJars = prefs.getBoolean(PreferenceConstants.P_SEND_JARS_THAT_CHANGED);
+			
 			
 			
 			InstallComponent ic = new InstallComponent(url, jarInfoUrl,port,username, password);
 			boolean success=ic.uploadComponent(new File( workspacePath +File.separator +location.toOSString()),
-					overwrite, dump, embed, null);
+					overwrite, dump, embed, uploadOnlyChangedJars,null);
 			
 				if(success){
 					showMessage("Component Uploaded.");
