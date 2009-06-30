@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="src-test"/>
 	<classpathentry exported="true" kind="lib" path="lib/stax-api-1.0-2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jettison-1.0-RC2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xstream-1.2.2.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="lib" path="lib/antlr-2.7.5.jar"/>
 	<classpathentry kind="lib" path="lib/arq.jar"/>
 	<classpathentry kind="lib" path="lib/arq-extra.jar"/>
@@ -40,7 +40,6 @@
 	<classpathentry kind="lib" path="lib/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/asm-all-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/json-lib-2.2.1-jdk15.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Meandre-NCSA-DEV-1.4.0-vcli-alpha"/>
 	<classpathentry kind="lib" path="lib/meandre-client-1.4.0-vcli-alpha.jar"/>
 	<classpathentry kind="lib" path="lib/meandre-core-1.4.0-vcli-alpha.jar"/>
 	<classpathentry kind="lib" path="lib/meandre-kernel-1.4.0-vcli-alpha.jar"/>
