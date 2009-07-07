@@ -293,8 +293,10 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 					try {
 						rdfContent =cdcd.process(claszz);
 					} catch (CorruptedDescriptionException e2) {
+						out.println("[Error] " + e2.getMessage());
 						// TODO Auto-generated catch block
 						e2.printStackTrace();
+						return;
 					}
 					HashMap<String, Object> componentAnnotationMap = cdcd.getAnnotationReader().
 					getComponentClassAnnotationMap(claszz, org.meandre.annotations.Component.class);

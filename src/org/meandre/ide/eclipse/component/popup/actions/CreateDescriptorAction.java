@@ -135,7 +135,6 @@ public class CreateDescriptorAction implements IObjectActionDelegate, IEditorAct
 		
 		
 		try {
-		
 			ProjectClassLoader pLoader=	new ProjectClassLoader();
 		  	Class claszz=pLoader.getProjectClassLoader(unit.getJavaProject(),hasAspectJ).loadClass(className);
 			out.println("Got the class: " + claszz.getName());
@@ -166,9 +165,10 @@ public class CreateDescriptorAction implements IObjectActionDelegate, IEditorAct
 			out.println("[Error] Class not found "+ className);
 			e.printStackTrace();
 		} catch (CorruptedDescriptionException e) {
-				// TODO Auto-generated catch block
+				message = e.getMessage();
 				e.printStackTrace();
-			}finally{
+				out.println("[Error] "+ message);
+		}finally{
 			try {
 				out.flush();
 				out.close();

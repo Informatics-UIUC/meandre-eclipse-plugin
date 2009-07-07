@@ -37,6 +37,8 @@ import org.meandre.ide.eclipse.component.logger.MeandreLogger;
  * @author Amit Kumar
  * Created on Mar 8, 2008 1:26:15 PM
  * @modified by Amit Kumar Sep 5, 2008 3:22:45 PM
+ * @modified by Amit Kumar July 7, 2009 11:24:25 PM
+ * -commented out some logging statements
  */
 public class ProjectClassLoader {
 	
@@ -103,15 +105,14 @@ public class ProjectClassLoader {
                 
                 for ( int i = 0; i < paths.length; i++ ) {
                     IClasspathEntry path = paths[i];
-                    MeandreLogger.logInfo("1 Project Classpath: "+path);
                     
                     if (path.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
                         URL url = getRawLocationURL(path.getPath());
-                        MeandreLogger.logInfo("Project Classpath RAW URL..."+url);
-                        MeandreLogger.logInfo("Adding:> " + url.getPath() +" " + path.getPath());
+                        //MeandreLogger.logInfo("Project Classpath RAW URL..."+url);
+                        //MeandreLogger.logInfo("Adding:> " + url.getPath() +" " + path.getPath());
                         pathElements.add(url);
                     }else if(path.getEntryKind() == IClasspathEntry.CPE_CONTAINER){
-                    		MeandreLogger.logInfo("path.getPath():"+ path.getPath()+":");
+                    		//MeandreLogger.logInfo("path.getPath():"+ path.getPath()+":");
 
                     		if(!"org.eclipse.jdt.launching.JRE_CONTAINER".equals(path.getPath().segment(0))) {
                     			if(!"org.eclipse.ajdt.core.ASPECTJRT_CONTAINER".equals(path.getPath().segment(0))
@@ -119,13 +120,13 @@ public class ProjectClassLoader {
                     			){
                     			
                         		IClasspathContainer icc =JavaCore.getClasspathContainer(path.getPath(), project);
-                        		MeandreLogger.logInfo("Found: " + icc.getClasspathEntries().length + " in the "+path.getPath());
+                        		//MeandreLogger.logInfo("Found: " + icc.getClasspathEntries().length + " in the "+path.getPath());
                         		IClasspathEntry[] containerPaths  = icc.getClasspathEntries();
                         		for(int thisContainerClass=0; thisContainerClass < containerPaths.length; thisContainerClass++){
                         			if(containerPaths[thisContainerClass].getEntryKind() == IClasspathEntry.CPE_LIBRARY){
                         				pathElements.add(getRawLocationURL(containerPaths[thisContainerClass].getPath()));	
-                        				MeandreLogger.logInfo("Adding: " + containerPaths[thisContainerClass].getPath() +" " + path.getPath());
-                        				 out.println("Adding: " + containerPaths[thisContainerClass].getPath() +" " + path.getPath());
+                        				//MeandreLogger.logInfo("Adding: " + containerPaths[thisContainerClass].getPath() +" " + path.getPath());
+                        				 //out.println("Adding: " + containerPaths[thisContainerClass].getPath() +" " + path.getPath());
                         			}else{
                         				MeandreLogger.logInfo("Error: Don't know how to handle" +containerPaths[thisContainerClass].getPath());
                         				out.println("Error: Don't know how to handle" +containerPaths[thisContainerClass].getPath());
@@ -135,7 +136,7 @@ public class ProjectClassLoader {
                     			}
                     		
                     	}
-                    	  MeandreLogger.logInfo("Path Entry: " + path.getEntryKind() +" -- " + path.getContentKind());
+                    	  //MeandreLogger.logInfo("Path Entry: " + path.getEntryKind() +" -- " + path.getContentKind());
                     }
                 }
             }

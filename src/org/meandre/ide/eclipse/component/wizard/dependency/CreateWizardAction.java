@@ -110,7 +110,7 @@ public class CreateWizardAction implements IObjectActionDelegate {
 		MeandreDependencyComponentWizard wizard = new MeandreDependencyComponentWizard(project);
 		wizard.init(part.getSite().getWorkbenchWindow().getWorkbench(),
 		            (IStructuredSelection)targetSelection);
-		    // Instantiates the wizard container with the wizard and opens it
+		//Instantiates the wizard container with the wizard and opens it
 		WizardDialog dialog = new WizardDialog(PlatformUI.getWorkbench().
 		            getActiveWorkbenchWindow().getShell(), wizard);
 		dialog.create();

@@ -33,6 +33,9 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * 
  * @author Amit Kumar
  * Created on Jan 31, 2009 5:54:22 PM
+ * @modified on July 7th, 2009 11:52:50 PM
+ * -process throws exception when one of the
+ * -required annotation attributes is null
  *
  */
 public class CreateDefaultComponentDescriptor {
@@ -82,7 +85,7 @@ public class CreateDefaultComponentDescriptor {
 			logger.severe("-- sCreator: " + sCreator);
 			logger.severe("-- sRunnable: " + sRunnable);
 			logger.severe("-- sFiringPolicy: " + sFiringPolicy);
-			return null;
+			throw new CorruptedDescriptionException("Error : one of the required Component annotations attributes is of zero length");
 		}
 
 
@@ -104,8 +107,7 @@ public class CreateDefaultComponentDescriptor {
 		 // don't use the sLocation because this may refer to 
 		// extended class and the extended class maynot have
 		// the the @Component annotation.
-		 String sLocation = componentClass.getCanonicalName();
-	
+		String sLocation = componentClass.getCanonicalName();
 		Model model = ModelFactory.createDefaultModel();
 		Resource resExecutableComponent = model.createResource(sBaseURL
 				+ sComponentName);

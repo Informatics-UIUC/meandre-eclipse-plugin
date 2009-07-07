@@ -14,7 +14,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime.compatibility,
  org.eclipse.jface.text,
  org.junit4
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  lib/antlr-2.7.5.jar,
  lib/arq.jar,

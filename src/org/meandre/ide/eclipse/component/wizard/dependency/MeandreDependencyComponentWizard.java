@@ -29,12 +29,13 @@ import org.meandre.ide.eclipse.component.wizard.dependency.model.ComponentListMo
 import org.meandre.ide.eclipse.utils.JarUtils;
 import org.meandre.ide.eclipse.utils.ProjectClassLoader;
 
+@SuppressWarnings("deprecation")
 public class MeandreDependencyComponentWizard extends Wizard implements INewWizard{
 
 	ComponentListPage componentListPage;
+	public ComponentInstallationPage installPage;
 	private IWorkbench workbench;
 	private IStructuredSelection selection;
-	public ComponentInstallationPage installPage;
 	ComponentListModel model;
 	private IJavaProject project;
 	ArrayList<String> filterJarList = new ArrayList<String>(10);
@@ -113,7 +114,7 @@ public class MeandreDependencyComponentWizard extends Wizard implements INewWiza
 	
 	public boolean canFinish()
 	{
-		// cannot completr the wizard from the first page
+		// cannot complete the wizard from the first page
 		if (this.getContainer().getCurrentPage() == componentListPage) 
 			return false;
 		// based on the type of transport return the right flag			
@@ -124,6 +125,9 @@ public class MeandreDependencyComponentWizard extends Wizard implements INewWiza
 	
 	public boolean performFinish() 
 	{
+		if(!installPage.isProcessed()){
+			installPage.installSelectedComponents();
+		}
 		String summary = model.toString();
 		MessageDialog.openInformation(workbench.getActiveWorkbenchWindow().getShell(), 
 			"Installation Summary", summary);

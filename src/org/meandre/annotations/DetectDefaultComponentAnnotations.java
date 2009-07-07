@@ -22,6 +22,8 @@ import java.util.Stack;
  * 
  * @author Amit Kumar
  * Created on Jan 29, 2009 12:24:52 PM
+ * Fixed : July 07 2009 
+ * getComponentClassAnnotationMap check if class file is Interface then exit
  *
  */
 public class DetectDefaultComponentAnnotations {
@@ -32,7 +34,9 @@ public class DetectDefaultComponentAnnotations {
 	 */
 	public HashMap<String, ComponentNature> getComponentNatureAnnotation(Class<?> componentClass) {
 		HashMap<String,ComponentNature>  hashMap = new HashMap<String,ComponentNature>();
-		
+		if(componentClass.isInterface()){
+			return  hashMap;
+		}
 		Stack<ComponentNature> annotationStack = new Stack<ComponentNature>(); 
 		if(componentClass.getAnnotation( ComponentNature.class)!=null){
 			annotationStack.push(componentClass.getAnnotation(ComponentNature.class));
@@ -66,6 +70,7 @@ public class DetectDefaultComponentAnnotations {
 	public HashMap<String,Object> getComponentClassAnnotationMap(Class<?> clazz, 
 			Class<? extends Annotation> componentAnnotationClass){
 		Stack<Annotation> annotationStack = new Stack<Annotation>(); 
+		if(!clazz.isInterface()){
 		if(clazz.getAnnotation(componentAnnotationClass)!=null){
 			annotationStack.push(clazz.getAnnotation(componentAnnotationClass));
 		}
@@ -76,6 +81,8 @@ public class DetectDefaultComponentAnnotations {
 		}
 		superClazz = superClazz.getSuperclass();
 		}
+		}
+		
 		return mergeAnnotationsMap(annotationStack, componentAnnotationClass);
 	}
 	/**Return field level annotations: This function returns component input/output
@@ -89,6 +96,9 @@ public class DetectDefaultComponentAnnotations {
 			Class<? extends Annotation> componentFieldAnnotationClass){
 		System.out.println("Component: " + component.getName());
 		HashMap<String, Annotation> annotationList = new HashMap<String,Annotation>();
+		if(component.isInterface()){
+			return  annotationList;
+		}
 		Stack<Class<?>> classStack = new Stack<Class<?>>();
 		Class<?> superClazz = component.getSuperclass();
 		classStack.push(component);

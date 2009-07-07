@@ -86,8 +86,8 @@ public class ComponentListPage extends WizardPage implements Listener{
 	protected ComponentListPage(IStructuredSelection selection) {
 		super("Component List");
 		this.targetSelection = selection;
-		setTitle("Discovering Components");
-		setDescription("Searching for components");
+		setTitle("Discover Components");
+		setDescription("Search for components");
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		baseFolder = workspace.getRoot().getLocation().toPortableString();
 		prefs = Activator.getDefault().getPluginPreferences();
@@ -95,7 +95,6 @@ public class ComponentListPage extends WizardPage implements Listener{
 		storeSource = prefs.getBoolean(PreferenceConstants.P_INCLUDE_SOURCE);
 		folders = new ArrayList<IFolder>(5);
 		detectAnnotations = new DetectDefaultComponentAnnotations();
-
 	}
 
 	public void createControl(Composite parent) {
@@ -154,38 +153,33 @@ public class ComponentListPage extends WizardPage implements Listener{
 		progressBar.setMaximum(30);
 
 		findComponentButton = new Button(composite, SWT.PUSH);
-		findComponentButton.setText("Find");
+		findComponentButton.setText("Refresh");
 		findComponentButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_END));
 		findComponentButton.addListener(SWT.Selection, this);
 		setControl(composite);	
 		addSelection();
+		findComponents();
+		
 	}
 
 
 
 	private void addSelection (){
 		if(targetSelection instanceof IStructuredSelection){
-			//Object object = ((IStructuredSelection) targetSelection)
-			//.getFirstElement();
 			Iterator<IStructuredSelection> its=((IStructuredSelection) targetSelection).iterator();
+			outputLocation= new File(baseFolder+ ProjectClassLoader.getProjectOutput(getJavaProject())).getAbsolutePath();
+			urlClassloader=ProjectClassLoader.getProjectClassLoader(getJavaProject(),hasAspectJ);
+		
 			Object object = null;
 			while(its.hasNext()){
-				//	System.out.println("=====> " + ((IFolder)its.next()));
 				object = its.next();
-				//}
-
 				if(object instanceof IFolder){
 					folders.add((IFolder)object);
-					outputLocation= new File(baseFolder+ ProjectClassLoader.getProjectOutput(getJavaProject())).getAbsolutePath();
-					urlClassloader=ProjectClassLoader.getProjectClassLoader(getJavaProject(),hasAspectJ);
-					if(urlClassloader==null){
-						System.out.println("[INFO] NULL project project classloader is null");	
-					}else{
-						System.out.println("[INFO] 12 project " +  urlClassloader.getURLs().length);
-					}
 					list.add(((IFolder)object).getProjectRelativePath().toOSString());
-					list.select(list.getTopIndex());
 				}
+			}
+			if(list.getItemCount()>0){
+			list.select(list.getTopIndex());
 			}
 		}
 
@@ -197,6 +191,7 @@ public class ComponentListPage extends WizardPage implements Listener{
 	 * 
 	 */
 	private void findComponents() {
+		File outputLocationDir = new File(outputLocation);
 		selectAllButton.setEnabled(false);
 		Iterator<IFolder> folder =  folders.iterator(); 
 		int count=0;
@@ -205,19 +200,14 @@ public class ComponentListPage extends WizardPage implements Listener{
 
 		while(folder.hasNext()){
 			IJavaElement packageElement = JavaCore.create(folder.next());
-
 			progressBar.setSelection(0);
-
 			if(packageElement.getElementType()==  IJavaElement.PACKAGE_FRAGMENT  
 					|| packageElement.getElementType()==  IJavaElement.PACKAGE_FRAGMENT_ROOT){
-				System.out.println("yes package:");
+				//System.out.println("yes package:");
 			}
-
 			if(packageElement.getElementType()==  IJavaElement.PACKAGE_FRAGMENT ){
 				IPackageFragment ipf = (IPackageFragment) packageElement;
-
 				try {
-
 					ICompilationUnit[] ipfcompunit=ipf.getCompilationUnits();
 					progressBar.setMaximum(ipfcompunit.length);
 					if(ipfcompunit!=null){
@@ -227,7 +217,7 @@ public class ComponentListPage extends WizardPage implements Listener{
 							if(ipfcompunit[i].getTypes()!=null && 
 									ipfcompunit[i].isStructureKnown() && 
 									!ipfcompunit[i].getElementName().equalsIgnoreCase("package-info.java")){
-								System.out.println(ipfcompunit[i].getElementName() + "----->" + ipfcompunit[i].getElementType() );
+								//System.out.println(ipfcompunit[i].getElementName() + "----->" + ipfcompunit[i].getElementType() );
 								String className = ipfcompunit[i].getTypes()[0].getFullyQualifiedName();
 								IType itype=getJavaProject().findType(className);
 								if(itype==null){
@@ -235,26 +225,30 @@ public class ComponentListPage extends WizardPage implements Listener{
 									continue;
 								}
 
-								//System.out.println("Output is here: " + outputLocation);
-								File outputLocationDir = new File(outputLocation);
-								System.out.println("[INFO] 5 output loc ");
-
-
-								String componentPath = new File(outputLocationDir,
-										className.replace('.', File.separatorChar) + ".class").getAbsolutePath();
-								System.out.println("[INFO] 6.2 componentPath " + componentPath);
+								//String componentPath = new File(outputLocationDir,
+								//		className.replace('.', File.separatorChar) + ".class").getAbsolutePath();
+								//System.out.println("[INFO] 6.2 componentPath " + componentPath);
 
 
 								Class claszz=null;
 								try{
+									System.out.println("Getting class " + className);
 									claszz = urlClassloader.loadClass(className);
+									//System.out.println("Success getting class " + className);
 								}catch(Exception ex){
 									System.out.println("[ERROR] className " + className + "  " + ex.getMessage());
 									return;
 								}
+								//System.out.println("Detecting Annotations...");
 								HashMap<String,Object> annotationHash=
 									detectAnnotations.getComponentClassAnnotationMap(claszz, org.meandre.annotations.Component.class);
-								//Component componentAnnotation = (Component) claszz.getAnnotation(Component.class);
+								//System.out.println("After Detecting Annotations...");
+								/*if(annotationHash==null){
+									System.out.println("Annotation hash is null ");
+								}else{
+									System.out.println("Found: " + annotationHash.size() + " annotations");
+								}
+								*/
 								if( annotationHash.size()>0){
 									ComponentData cdata = new ComponentData();
 									cdata.setClassName(className);
@@ -289,18 +283,8 @@ public class ComponentListPage extends WizardPage implements Listener{
 
 			}
 
-			System.out.println(packageElement.getElementName() + "   " + packageElement.getElementType());
+			//System.out.println(packageElement.getElementName() + "   " + packageElement.getElementType());
 		}
-		/*	System.out.println(packageElement);
-			if(itype==null){
-				System.out.println("itype ==null");
-			}else{
-				System.out.println(itype);
-			}
-		 */
-
-
-
 	}
 
 
@@ -337,9 +321,6 @@ public class ComponentListPage extends WizardPage implements Listener{
 				status = new Status(IStatus.ERROR, "not_used", 0, 
 						"Select atleast one component to continue", null);	   
 			}
-
-
-
 		}else if(event.widget== findComponentButton){
 			findComponents();
 		}else if(event.widget == table){

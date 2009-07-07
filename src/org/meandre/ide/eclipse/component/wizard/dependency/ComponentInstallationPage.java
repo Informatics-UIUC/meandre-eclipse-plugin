@@ -76,38 +76,42 @@ import org.meandre.tools.components.InstallComponent;
  * Created on Jul 13, 2008 4:07:15 PM
  *
  */
+@SuppressWarnings("deprecation")
 public class ComponentInstallationPage extends WizardPage implements Listener{
 
 	private Table table;
 	private ProgressBar progressBar;
 	private ProgressBar installprogressBar;
 	private Button installComponentButton;
-	boolean isJavaProject = Boolean.TRUE;
+	private boolean isJavaProject = Boolean.TRUE;
 	private ComponentListModel model;
-	String baseFolder;
-	Preferences prefs;
-	boolean hasAspectJ = Boolean.FALSE;
-	boolean storeSource = Boolean.FALSE;
-	String outputLocation;
+	private String baseFolder;
+	@SuppressWarnings("deprecation")
+	private Preferences prefs;
+	private boolean hasAspectJ = Boolean.FALSE;
+	private boolean storeSource = Boolean.FALSE;
+	private boolean processed = Boolean.FALSE;
+	//String outputLocation;
 	private Label componentLabel;
 	private Label installLabel;
-	String tmpFolder = System.getProperty("java.io.tmpdir");
+	private String tmpFolder = System.getProperty("java.io.tmpdir");
 	private ComponentJarUtils componentUtils;
 	private ProjectSourceUtils projectSourceUtils;
-	IWorkspace workspace;
-	String workspacePath;
-	boolean stopInstall = false;
+	private IWorkspace workspace;
+	private String workspacePath;
+	private boolean stopInstall = false;
 	private Shell shell;
-	String url;
-	String jarInfoUrl;
-	int port;
-	String username;
-	String password;
-	boolean embed;
-	boolean overwrite;
-	boolean packagePath= true;
-	boolean uploadOnlyChangedJars  =false;
+	private String url;
+	private String jarInfoUrl;
+	private int port;
+	private String username;
+	private String password;
+	private boolean embed;
+	private boolean overwrite;
+	private boolean packagePath= true;
+	private boolean uploadOnlyChangedJars  =false;
 
+	@SuppressWarnings("deprecation")
 	protected ComponentInstallationPage() {
 		super("Component Installation List");
 		setTitle("Meandre Components");
@@ -224,7 +228,6 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 			System.out.println(event.item + " " + string +" " +event.stateMask + " " +tableItemStatus);
 			String key= ((TableItem)event.item).getText();
 			ComponentData cdata=   this.model.getData(key);
-			assert cdata != null;
 			cdata.setSelected(tableItemStatus);
 			this.model.addData(key, cdata);
 			String prevText=this.componentLabel.getText();
@@ -242,12 +245,17 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 		ComponentListModel model = getModel();
 		Iterator<String> its = model.getkeySet().iterator();
 		ComponentData cdata = null;
+		table.removeAll();
+		String key = null;
 		while(its.hasNext()){
-			cdata = model.getData(its.next());
+			key = its.next();
+			cdata = model.getData(key);
 			if(cdata.isSelected()){
 				addDataToTable(cdata);
 			}
 		}
+	 this.processed = Boolean.FALSE;
+		
 	}
 
 	private void addDataToTable(ComponentData cdata) {
@@ -268,6 +276,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 		mc.activate();
 		MessageConsoleStream out = mc.newMessageStream();
 		Iterator<String> it = this.getModel().getkeySet().iterator();
+		this.processed = Boolean.TRUE;
 		this.stopInstall = false;
 		this.componentLabel.setText("");
 		installprogressBar.setSelection(0);
@@ -355,9 +364,11 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 			try {
 				String rdfString=ccd.process(claszz);
 				descriptorFileName = writeToFile(rdfString, claszz.getName(), claszz.getSimpleName());
-				}catch (CorruptedDescriptionException e) {
+			}catch (CorruptedDescriptionException e) {
 				e.printStackTrace();
-				}
+				out.println(e.getMessage());
+				return false;
+			}
 			this.installprogressBar.setSelection(progress++);
 
 
@@ -368,28 +379,20 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 
 			HashMap<String,Object> componentAnnotationHashMap=annotationReader.
 			getComponentClassAnnotationMap(claszz, org.meandre.annotations.Component.class);
-
-			//HashMap<String, Object> componentNatureHashMap = annotationReader.getComponentClassAnnotationMap(claszz,
-			//		org.meandre.annotations.ComponentNature.class);
-
 			HashMap<String, Object> componentNaturesHashMap = annotationReader.getComponentClassAnnotationMap(claszz,
 					org.meandre.annotations.ComponentNatures.class);
-
-
-			//Component componentAnnotation = (Component) claszz.getAnnotation(Component.class);
-			//ComponentNatures componentNatures = (ComponentNatures) claszz.getAnnotation(ComponentNatures.class);
 			HashMap<String,ComponentNature> componentNatureHashMap =   annotationReader.getComponentNatureAnnotation(claszz);
 
 
 
 
-			out.println("[INFO] 9 sourcePath " +  sourcePath);
-			out.println("[INFO] 10 className " +  className);
-			out.println("[INFO] 11 project " + getJavaProject().getPath());
-			out.println("[INFO] 12 ouputDir " + ouputDir);
-			out.println("Got the class..." + claszz.getName());
+			//out.println("[INFO] 9 sourcePath " +  sourcePath);
+			//out.println("[INFO] 10 className " +  className);
+			//out.println("[INFO] 11 project " + getJavaProject().getPath());
+			//out.println("[INFO] 12 ouputDir " + ouputDir);
+			//out.println("Got the class..." + claszz.getName());
 
-			System.out.println("Annotatin size--->"+claszz.getAnnotations().length);
+			//System.out.println("Annotatin size--->"+claszz.getAnnotations().length);
 
 			Object objectResource = componentAnnotationHashMap.get("resources");
 			String resources[] =null;
@@ -415,7 +418,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 			String componentJar = tmpFolder+File.separator+claszz.getName()+"-"+fileName+".jar";
 		
 			out.println("creating component jar file: " + componentJar);
-			out.println("===> " + projectPath + "  " + sourcePath + " " + componentJar + "  "+ resourceList);
+			//out.println("===> " + projectPath + "  " + sourcePath + " " + componentJar + "  "+ resourceList);
 			this.installLabel.setText("Getting component source " + name);
 			this.installprogressBar.setSelection(progress++);
 			this.installLabel.setText("Creating component jar package: " + name);
@@ -634,12 +637,11 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 	          case SWT.RETRY:
 	        	  proceed= true;
 	        	  break;
-	            // saves changes ...
 	          case SWT.ABORT:
-	            proceed= false;
-	            break;
+	        	  proceed= false;
+	        	  break;
 	          case SWT.IGNORE:
-	           proceed= true;
+	        	  proceed= true;
 	        }
 	  return proceed;
 	}
@@ -657,7 +659,6 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 		try {
 			itype = project.findType(componentEntity);
 		} catch (JavaModelException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(itype.getPath());
@@ -672,7 +673,6 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 
 	public boolean canFlipToNextPage()
 	{
-		// no next page for this path through the wizard
 		return false;
 	}
 
@@ -763,6 +763,14 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 	        }
 	        return absoluteFilePath;
 	    }
+
+	public boolean isProcessed() {
+		return processed;
+	}
+
+	public void setProcessed(boolean processed) {
+		this.processed = processed;
+	}
 
 
 }
