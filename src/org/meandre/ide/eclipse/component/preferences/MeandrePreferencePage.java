@@ -73,6 +73,7 @@ public class MeandrePreferencePage
 		//addField(new BooleanFieldEditor(PreferenceConstants.P_USE_COMPONENT_VERSIONING,"&Use Component Versioning",getFieldEditorParent()));
 		//addField(new BooleanFieldEditor(PreferenceConstants.P_PING_SERVER,"&Periodically Ping Server ",getFieldEditorParent()));
 		addField(new BooleanFieldEditor(PreferenceConstants.P_INCLUDE_SOURCE,"&Package Source with the Component ",getFieldEditorParent()));
+		addField(new BooleanFieldEditor(PreferenceConstants.P_CONTINUE_WITH_MISSING_RESOURCE,"&Ignore Missing Resources",getFieldEditorParent()));
 		
 		addField(new BooleanFieldEditor(PreferenceConstants.P_CREATE_PACKAGE_PATH,"&Descriptor -Create in package directory",getFieldEditorParent()));
 		

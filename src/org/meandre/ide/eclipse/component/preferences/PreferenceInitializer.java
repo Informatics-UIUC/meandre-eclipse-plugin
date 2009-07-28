@@ -34,6 +34,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.P_PING_SERVER, false);
 		store.setDefault(PreferenceConstants.P_HAS_ASPECT_J, false);
 		store.setDefault(PreferenceConstants.P_INCLUDE_SOURCE, true);
+		store.setDefault(PreferenceConstants.P_CONTINUE_WITH_MISSING_RESOURCE, false);
+		
 		store.setDefault(PreferenceConstants.P_CREATE_PACKAGE_PATH, true);
 		//supported only in recent servers 1.4.7 and beyond
 		store.setDefault(PreferenceConstants.P_SEND_JARS_THAT_CHANGED, true);

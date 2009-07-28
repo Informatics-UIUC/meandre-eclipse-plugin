@@ -171,8 +171,8 @@ public class ProjectSourceUtils {
 
 	
 	public ArrayList<String> getResourceList(
-			String resources[], IPath parentFile) {
-		ArrayList<String> resourceList = new ArrayList<String>();
+			String resources[], ArrayList<String> missingResources, IPath parentFile) {
+			ArrayList<String> resourceList = new ArrayList<String>();
 		if(resources!=null){
 			for(int i=0; i < resources.length;i++){
 				if(resources[i]!=null && resources[i].trim().length()>0){
@@ -186,7 +186,7 @@ public class ProjectSourceUtils {
 							e.printStackTrace();
 						}
 					}else{
-						//TODO:  RESOURCE NOT FOUND
+						missingResources.add(resourceFile.getAbsolutePath());
 					}
 
 				}

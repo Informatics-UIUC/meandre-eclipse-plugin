@@ -111,6 +111,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 		String baseFolder = workspace.getRoot().getLocation().toPortableString();
 		boolean hasAspectJ =  prefs.getBoolean(PreferenceConstants.P_HAS_ASPECT_J);
 		boolean storeSource = prefs.getBoolean(PreferenceConstants.P_INCLUDE_SOURCE);
+		boolean proceedIfResourceMissing = prefs.getBoolean(PreferenceConstants.P_CONTINUE_WITH_MISSING_RESOURCE);
 		this.packagePath = prefs.getBoolean(PreferenceConstants.P_CREATE_PACKAGE_PATH);
 
 		String workspacePath = workspace.getRoot().getLocation().toOSString();
@@ -344,9 +345,21 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 						}
 
+						ArrayList<String> missingResources = new ArrayList<String>();
+						ArrayList<String> resourceList = this.projectSourceUtils.getResourceList(resources,missingResources,parentFile);
 
-						ArrayList<String> resourceList = this.projectSourceUtils.getResourceList(resources,parentFile);
-
+						if(missingResources.size()!=0){
+							out.println("Could not find the resource(s): ");
+							for(String fname:resourceList){
+								out.println(fname);
+							}
+							if(!proceedIfResourceMissing){
+								out.println("Returning -Change preferences if you want to ignore this error");
+								return;
+							}
+						}
+						
+						
 						boolean componentJarCreated= Boolean.FALSE;
 						String fileName = componentName.toLowerCase();
 						fileName = fileName.replaceAll("\\s+", "-");

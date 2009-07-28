@@ -30,6 +30,7 @@ public class PreferenceConstants {
 	public static final String P_INCLUDE_SOURCE = "includeSource";
 	public static final String P_CREATE_PACKAGE_PATH = "packagePath";
 	public static final String P_SEND_JARS_THAT_CHANGED = "jarsDelta";
+	public static final String P_CONTINUE_WITH_MISSING_RESOURCE = "proceedEvenIfMissingResource";
 	
 	
 }

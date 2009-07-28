@@ -110,6 +110,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 	private boolean overwrite;
 	private boolean packagePath= true;
 	private boolean uploadOnlyChangedJars  =false;
+	boolean proceedIfResourceMissing=false;
 
 	@SuppressWarnings("deprecation")
 	protected ComponentInstallationPage() {
@@ -119,6 +120,8 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 		prefs = Activator.getDefault().getPluginPreferences();
 		hasAspectJ =  prefs.getBoolean(PreferenceConstants.P_HAS_ASPECT_J);
 		storeSource = prefs.getBoolean(PreferenceConstants.P_INCLUDE_SOURCE);
+		proceedIfResourceMissing = prefs.getBoolean(PreferenceConstants.P_CONTINUE_WITH_MISSING_RESOURCE);
+		
 		this.componentUtils = new ComponentJarUtils();
 		this.projectSourceUtils = new ProjectSourceUtils();
 		workspace = ResourcesPlugin.getWorkspace();
@@ -221,6 +224,13 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 
 	public void handleEvent(Event event) {
 		if(event.widget== installComponentButton){
+		// re read the preferences
+			prefs = Activator.getDefault().getPluginPreferences();
+			hasAspectJ =  prefs.getBoolean(PreferenceConstants.P_HAS_ASPECT_J);
+			storeSource = prefs.getBoolean(PreferenceConstants.P_INCLUDE_SOURCE);
+			proceedIfResourceMissing = prefs.getBoolean(PreferenceConstants.P_CONTINUE_WITH_MISSING_RESOURCE);
+			
+		
 			installSelectedComponents();
 		}else if(event.widget == table){
 			String string = event.detail == SWT.CHECK ? "Checked": "Selected";
@@ -402,8 +412,20 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 			}
 
 
-			ArrayList<String> resourceList = this.projectSourceUtils.getResourceList(resources,parentFile);
-
+			ArrayList<String> missingResources = new ArrayList<String>();
+			ArrayList<String> resourceList = this.projectSourceUtils.getResourceList(resources,missingResources,parentFile);
+			if(missingResources.size()!=0){
+				out.println("Could not find the resource(s): ");
+				for(String fname:resourceList){
+					out.println(fname);
+				}
+				if(!proceedIfResourceMissing){
+					out.println("Returning -Change preferences if you want to ignore this error");
+					return false;
+				}
+			}
+			
+			
 			boolean componentJarCreated= Boolean.FALSE;
 			Object objectName = componentAnnotationHashMap.get("name");
 			String fileName =null;
@@ -417,7 +439,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 			}
 			String componentJar = tmpFolder+File.separator+claszz.getName()+"-"+fileName+".jar";
 		
-			out.println("creating component jar file: " + componentJar);
+			out.println("Creating component jar file: " + componentJar);
 			//out.println("===> " + projectPath + "  " + sourcePath + " " + componentJar + "  "+ resourceList);
 			this.installLabel.setText("Getting component source " + name);
 			this.installprogressBar.setSelection(progress++);
@@ -541,6 +563,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 					}
 				}
 				if(!displayMessageAndAskToContinue(name,className, message )){
+					out.println(message);
 					this.stopInstall = true;
 				}
 					return false;
