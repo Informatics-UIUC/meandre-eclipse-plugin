@@ -172,3 +172,4 @@ September 5th 2008 [CRITICAL] DONE September 5th 2008
 #123 Bug fix when @Component Annotation did not have all the required attributes no exception was thrown - [Amit] July 7th 2009
 #124 Bug fix Detect Annotation when an interface class file was sent -it would silently fail to detect the annotation. -[Amit] July 7th 2009
 #125 Improvements in the Wizard: Auto find all the components. -[Loretta] July 7th 2009
+#126 error message about depencency resource not found. -[Loretta] July 26th 2009

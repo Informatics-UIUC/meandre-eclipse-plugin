@@ -47,4 +47,4 @@ list and the package jar file.
 [WIll NOT DO]: The plugin has three steps; what you are asking requires me to remove the last step; It can be done
 but is a bit of a task and I am not sure if it is all that useful.
 #108 Updated to  Meandre Server 1.4 alpha -Breaks compatiability with previous versions [DONE] November 20th 2008
-
+#126 When the component extends an abstract class -the datatyping and Input/Output/Property data types and names are missing [Critical] July 14th 2009
