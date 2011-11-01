@@ -1,8 +1,8 @@
 /*
  * @(#) MeandrePluginClient.java @VERSION@
- * 
+ *
  * Copyright (c) 2008+ Amit Kumar
- * 
+ *
  * The software is released under ASL 2.0, Please
  * read License.txt
  *
@@ -17,25 +17,25 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 
 /** Accommodating changes for Peter's new changes.
- * 
+ *
  * @author Amit Kumar
  * Created on Nov 11, 2008 4:01:48 PM
  *
  */
 public class MeandrePluginProxy extends org.meandre.tools.client.v1.MeandreProxy {
-	
+
 	private String user;
 	private String passwd;
 	private String serverHost;
 	private String baseUrl;
 	private int serverPort;
-	
+
 
 	// list of plugins running
 	ArrayList<Plugin> pluginList = new ArrayList<Plugin>(5);
-	
+
 	private boolean missingPlugin = Boolean.FALSE;
-	
+
 	// used to deserialize the plugin list
 	XStream xstream = new XStream(new JettisonMappedXmlDriver());
 
@@ -49,12 +49,12 @@ public class MeandrePluginProxy extends org.meandre.tools.client.v1.MeandreProxy
 		this.serverPort = serverPort;
 		setServerUrl();
 	}
-	
+
 	public void update(){
 		super.update(user,passwd, serverHost, serverPort);
 		setServerUrl();
 	}
-	
+
 	@Override
 	public void update ( String sUser, String sPasswd, String sServerHost,
 			int iServerPort ){
@@ -69,35 +69,35 @@ public class MeandrePluginProxy extends org.meandre.tools.client.v1.MeandreProxy
 			System.out.println("Cannot connect: "+ ex.getMessage());
 		}
 	}
-	
 
-	
+
+
 
 	@Override
 	public void close() {
 		flushRoles();
 		flushRepository();
 	}
-	
+
 
 	public String getServerUrl(){
 		return baseUrl;
 	}
-	
+
 
 	public void setServerUrl() {
 		if(!serverHost.startsWith("http")){
 			serverHost = "http://"+serverHost;
 		}
 		if(serverHost.indexOf(":")==-1){
-		this.baseUrl  =  serverHost + ":" + 
+		this.baseUrl  =  serverHost + ":" +
         Integer.toString(serverPort) + "/";
 		}else{
 		this.baseUrl  = serverHost +":"+serverPort +"/";
 		}
 	}
-	
-	
+
+
 
 	public String getLogin() {
 		return this.user;
@@ -114,8 +114,6 @@ public class MeandrePluginProxy extends org.meandre.tools.client.v1.MeandreProxy
 			this.missingPlugin = false;
 			return;
 		}
-		// this is the DAMN 1.4 modification that someone thought would be
-		// better Jesus fucking god!
 		if (jsonString.startsWith("[{")) {
 			jsonString = "{\"list\":{\"org.meandre.plugins.bean.Plugin\":" + jsonString
 					+ "}}";
@@ -134,6 +132,6 @@ public class MeandrePluginProxy extends org.meandre.tools.client.v1.MeandreProxy
 		}
 
 	}
-	
+
 
 }
