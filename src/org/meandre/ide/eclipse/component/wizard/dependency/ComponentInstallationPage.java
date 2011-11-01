@@ -29,7 +29,6 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Preferences;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
@@ -37,6 +36,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
@@ -51,8 +51,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
-
-import org.eclipse.swt.layout.GridLayout;
 import org.meandre.annotations.ComponentNature;
 import org.meandre.annotations.CreateDefaultComponentDescriptor;
 import org.meandre.annotations.DetectDefaultComponentAnnotations;
@@ -83,9 +81,9 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 	private ProgressBar progressBar;
 	private ProgressBar installprogressBar;
 	private Button installComponentButton;
-	private boolean isJavaProject = Boolean.TRUE;
+	private final boolean isJavaProject = Boolean.TRUE;
 	private ComponentListModel model;
-	private String baseFolder;
+	private final String baseFolder;
 	@SuppressWarnings("deprecation")
 	private Preferences prefs;
 	private boolean hasAspectJ = Boolean.FALSE;
@@ -94,20 +92,20 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 	//String outputLocation;
 	private Label componentLabel;
 	private Label installLabel;
-	private String tmpFolder = System.getProperty("java.io.tmpdir");
-	private ComponentJarUtils componentUtils;
-	private ProjectSourceUtils projectSourceUtils;
-	private IWorkspace workspace;
-	private String workspacePath;
+	private String tmpFolder;
+	private final ComponentJarUtils componentUtils;
+	private final ProjectSourceUtils projectSourceUtils;
+	private final IWorkspace workspace;
+	private final String workspacePath;
 	private boolean stopInstall = false;
 	private Shell shell;
 	private String url;
 	private String jarInfoUrl;
-	private int port;
-	private String username;
-	private String password;
-	private boolean embed;
-	private boolean overwrite;
+	private final int port;
+	private final String username;
+	private final String password;
+	private final boolean embed;
+	private final boolean overwrite;
 	private boolean packagePath= true;
 	private boolean uploadOnlyChangedJars  =false;
 	boolean proceedIfResourceMissing=false;
@@ -121,6 +119,9 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 		hasAspectJ =  prefs.getBoolean(PreferenceConstants.P_HAS_ASPECT_J);
 		storeSource = prefs.getBoolean(PreferenceConstants.P_INCLUDE_SOURCE);
 		proceedIfResourceMissing = prefs.getBoolean(PreferenceConstants.P_CONTINUE_WITH_MISSING_RESOURCE);
+		
+		tmpFolder = System.getProperty("java.io.tmpdir");
+		if (!tmpFolder.endsWith(File.separator)) tmpFolder += File.separator;
 		
 		this.componentUtils = new ComponentJarUtils();
 		this.projectSourceUtils = new ProjectSourceUtils();
@@ -437,7 +438,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 				out.println("Error: name is null "+ fileName);
 				return false;
 			}
-			String componentJar = tmpFolder+File.separator+claszz.getName()+"-"+fileName+".jar";
+			String componentJar = tmpFolder+claszz.getName()+"-"+fileName+".jar";
 		
 			out.println("Creating component jar file: " + componentJar);
 			//out.println("===> " + projectPath + "  " + sourcePath + " " + componentJar + "  "+ resourceList);
@@ -630,7 +631,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 
 			InstallComponent ic = new InstallComponent(url, jarInfoUrl, port,username, password);
 			ic.init(dlist);
-			String[] jararray = (String[]) dlist
+			String[] jararray = dlist
 			.toArray(new String[0]);
 			System.out.println("Jar array is: " + jararray.length);
 			out.println("Uploading " + jararray.length+ " files. Please wait...");
@@ -685,7 +686,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 			e.printStackTrace();
 		}
 		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(itype.getPath());
-		String ss=file.getFullPath().toPortableString();
+		String ss=file.getFullPath().toOSString();
 		ss = ss.replace(".java", "");
 		String tmp=ss.replace(projectPath,"");
 		String componentPackagePath = componentEntity.replace('.', File.separatorChar);
@@ -694,6 +695,7 @@ public class ComponentInstallationPage extends WizardPage implements Listener{
 	}
 
 
+	@Override
 	public boolean canFlipToNextPage()
 	{
 		return false;

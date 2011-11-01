@@ -11,7 +11,6 @@ package org.meandre.webapp.proxy.client;
 
 import java.util.ArrayList;
 
-import org.meandre.client.MeandreProxy;
 import org.meandre.plugins.bean.Plugin;
 
 import com.thoughtworks.xstream.XStream;
@@ -23,7 +22,7 @@ import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
  * Created on Nov 11, 2008 4:01:48 PM
  *
  */
-public class MeandrePluginProxy extends MeandreProxy{
+public class MeandrePluginProxy extends org.meandre.tools.client.v1.MeandreProxy {
 	
 	private String user;
 	private String passwd;
@@ -56,6 +55,7 @@ public class MeandrePluginProxy extends MeandreProxy{
 		setServerUrl();
 	}
 	
+	@Override
 	public void update ( String sUser, String sPasswd, String sServerHost,
 			int iServerPort ){
 		this.user=sUser;
@@ -73,6 +73,7 @@ public class MeandrePluginProxy extends MeandreProxy{
 
 	
 
+	@Override
 	public void close() {
 		flushRoles();
 		flushRepository();
@@ -102,14 +103,10 @@ public class MeandrePluginProxy extends MeandreProxy{
 		return this.user;
 	}
 
+	@Override
 	public String getPassword() {
 		return this.passwd;
 	}
-
-	public ArrayList<Plugin> getServerPlugins() {
-		return this.pluginList;
-	}
-
 
 	public void updateServerPlugins() {
 		String jsonString = getServerPluginsAsJSON();

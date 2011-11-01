@@ -16,9 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -29,17 +27,19 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.FilePart;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
-import org.meandre.client.TransmissionException;
+import org.eclipse.core.runtime.Preferences;
+import org.meandre.ide.eclipse.component.Activator;
+import org.meandre.ide.eclipse.component.preferences.PreferenceConstants;
+import org.meandre.tools.client.exceptions.TransmissionException;
+import org.meandre.tools.client.v1.MeandreClient;
+import org.seasr.meandre.support.generic.io.ModelUtils;
+
+import com.hp.hpl.jena.rdf.model.Model;
+
 
 /**This program takes the rdf descriptor and  list of jar file dependencies
  * and uploads them to the meandre repository
@@ -67,6 +67,7 @@ public class InstallComponent {
 	private static String meandreUploadUrl="http://127.0.0.1:1714/services/repository/add.json";
 	private static String meandreJarInfoUrl="http://127.0.0.1:1714/";
 	private static int port=1714;
+	private final MeandreClient _client;
 	HttpClient client;
 	
 
@@ -77,6 +78,10 @@ public class InstallComponent {
 		InstallComponent.meandreJarInfoUrl = jarInfoUrl;
 		//String  = "plugins/jar/" + jarFile + "/info";
 		InstallComponent.port = port;
+		Preferences prefs = Activator.getDefault().getPluginPreferences();
+		_client = new MeandreClient(prefs.getString(PreferenceConstants.P_SERVER), prefs.getInt(PreferenceConstants.P_PORT));
+		_client.setCredentials(username, password);
+		
 		client= new HttpClient();
 		client.getState().setCredentials(new AuthScope(null, port, null),
 		new UsernamePasswordCredentials(InstallComponent.username, InstallComponent.password));
@@ -160,8 +165,27 @@ public class InstallComponent {
 	 */
 	public boolean uploadComponent(File componentRdfFile,boolean overwrite ,
 		   boolean dump,boolean embed,boolean uploadOnlyChangedJar,String[] jarDependencies){
-		PostMethod filePost;
-		filePost= new PostMethod(meandreUploadUrl);
+		
+		Set<Model> compModels = new HashSet<Model>();
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(componentRdfFile);
+		} catch (FileNotFoundException e2) {
+			System.out.println("Component RDF file not found");
+			return false;
+		}
+		
+		Model model;
+		try {
+			model = ModelUtils.getModel(fis, null);
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+			return false;
+		}
+		
+		compModels.add(model);
+		
 		int arrayLen=0;
 		int numJars=0;
 		
@@ -173,16 +197,7 @@ public class InstallComponent {
 		numJars=jarDependencies.length;
 		}
 		
-		Part[] parts = new Part[arrayLen];
-		try {
-			parts[0] = new StringPart("embed", embed+"");
-			parts[1] = new StringPart("overwrite", overwrite+"");
-			parts[2] = new StringPart("dump", dump+"");
-			parts[3] = new FilePart("repository", componentRdfFile);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Set<File> contexts = new HashSet<File>();
 		File jarFile = null;
 		int count = 4;
 		String infoUrl =this.meandreJarInfoUrl;
@@ -203,27 +218,17 @@ public class InstallComponent {
 				if(serverSideFileName!=null){
 				//System.out.println("NOW creating and SENDING 0 BYTE FILE and SENDING IT");
 				 // create a file with 0 bytes and send that instead of the new file	
-				File file = new File(tmpFolder+serverSideFileName);
+				File file = new File(tmpFolder,serverSideFileName);
 				try {
 					file.createNewFile();
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
-				try {
-					parts[count] = new FilePart("context",file);
-				} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				contexts.add(file);
 			
 				
 				}else{
-					try {
-						parts[count] = new FilePart("context", jarFile);
-					} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					contexts.add(jarFile);
 				}
 				
 				
@@ -235,53 +240,16 @@ public class InstallComponent {
 			}
 		}
 		System.out.println("Component: " + componentRdfFile.getName() + " Number of dependencies: " + numJars);
-		System.out.println("FP: "+ parts.length);
-			
-	
-		filePost.setRequestEntity( new MultipartRequestEntity(parts, filePost.getParams() ) );
-		//filePost.setQueryString("overwrite=true");
-		// makes it faster..
-		//filePost.getParams().setBooleanParameter(HttpMethodParams.USE_EXPECT_CONTINUE,true);
-		filePost.setDoAuthentication(true);
-		
-		int status = 401;
-		try {
-			status = client.executeMethod(filePost);
-		} catch (HttpException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			filePost.releaseConnection();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			filePost.releaseConnection();
-		}
 
-		System.out.println("Status: "+ status + " " + filePost.isAborted());
+		boolean success = true;
 		
 		try {
-			Reader reader = new InputStreamReader(
-					filePost.getResponseBodyAsStream(),filePost.getResponseCharSet());
-			StringBuffer componentBuffer = new StringBuffer(32768);
-			char[] buffer = new char[32768];
-			int charsRead;
-			while ((charsRead =reader.read(buffer)) != -1) {
-				componentBuffer.append(buffer, 0, charsRead);
-			}
-			componentBuffer.trimToSize(); // trim the backing buffer to the true size so memory isn't wasted
-					
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally{
-		filePost.releaseConnection();
+			_client.uploadModelBatch(compModels, contexts, overwrite);
+		} catch (TransmissionException e) {
+			success = false;
 		}
 		
-		
-		return !filePost.isAborted();
+		return success;
 	}
 
 

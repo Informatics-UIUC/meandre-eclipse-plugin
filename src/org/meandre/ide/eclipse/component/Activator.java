@@ -9,7 +9,6 @@
 package org.meandre.ide.eclipse.component;
 
 import java.io.File;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
@@ -28,15 +27,11 @@ import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.meandre.core.repository.QueryableRepository;
-import org.meandre.ide.eclipse.component.jobs.GetRepositoryJob;
-import org.meandre.ide.eclipse.component.jobs.ServerPingJob;
 import org.meandre.ide.eclipse.component.logger.MeandreLogger;
 import org.meandre.ide.eclipse.component.preferences.PreferenceConstants;
-import org.meandre.ide.eclipse.utils.ClasspathContainerUtils;
 import org.meandre.ide.eclipse.utils.FileSystemUtils;
 import org.meandre.ide.eclipse.utils.JarObject;
 import org.meandre.webapp.proxy.client.MeandrePluginProxy;
-
 import org.osgi.framework.BundleContext;
 
 
@@ -67,14 +62,9 @@ public class Activator extends AbstractUIPlugin {
 	public static final String ZZ_EXTN = "zz";
 	
 	
-	private static ServerPingJob serverPingJob=null;
-	public static GetRepositoryJob repositoryJob=null;
-	
-	
 	private static MeandrePluginProxy meandreProxy = null;
 	private static QueryableRepository repository=null;
 	private static FileSystemUtils fileSystemUtil = null;
-	private static ClasspathContainerUtils classpathContainerUtil=null;
 	public static String meandreServerVersion=null;
 	
 	public static boolean isConnected = Boolean.FALSE;
@@ -101,12 +91,13 @@ public class Activator extends AbstractUIPlugin {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public void start(BundleContext context) throws Exception {
 		long start = System.currentTimeMillis();
 		super.start(context);
 		plugin = this;
-		pluginVersion=(String) this.getBundle().getHeaders().get("Bundle-Version");
+		pluginVersion=this.getBundle().getHeaders().get("Bundle-Version");
 		pluginName = plugin.getBundle().getSymbolicName();
 		workspace = ResourcesPlugin.getWorkspace();
 		 
@@ -134,27 +125,11 @@ public class Activator extends AbstractUIPlugin {
 		fileSystemUtil = new FileSystemUtils();
 		
 		MeandreLogger.logInfo("Starting MeandreIde Component: " +  this.getBundle().getHeaders().get("Bundle-Version") + "  version");
-	    repositoryJob = new GetRepositoryJob(GET_REP_JOB);
-		repositoryJob.setProxy(meandreProxy);
 		//repositoryJob.schedule();
 		
 		this.getPluginPreferences().addPropertyChangeListener(propertyChangeListener);
 		//System.out.println("Time in the Activator: " + (System.currentTimeMillis()-start));
 	
-		
-		String serverLibFolder=fileSystemUtil.findDirectory(pluginName+"", "server" + File.separator + "lib");
-		
-		if(serverLibFolder==null){
-			MeandreLogger.logError("The lib directories with server jar files could not be located.");
-		}else{
-			classpathContainerUtil = new ClasspathContainerUtils(serverLibFolder);		
-			classpathContainerUtil.init();
-			if(classpathContainerUtil.isValid()){
-				MeandreLogger.logInfo("Found: " + classpathContainerUtil.getClasspathContainers().size() + " classpath containers for use.");
-			}else{
-				MeandreLogger.logError("Error: could not find the any classpath containers for use.");
-			}
-		}
 		
 		//System.out.println("  number of libraries: " + serverLibs.list().length);
 	}
@@ -163,19 +138,7 @@ public class Activator extends AbstractUIPlugin {
 		boolean choice=this.getPluginPreferences().getBoolean(PreferenceConstants.P_PING_SERVER);
 		// we are not pinging the server ever
 		
-		if(choice){
-			if(serverPingJob==null){
-				serverPingJob = new ServerPingJob(PING_JOB);
-				serverPingJob.setProxy(meandreProxy);
-				serverPingJob.schedule();
-			}
-		}else{
-			if(serverPingJob !=null){
-				serverPingJob.cancel();
-				serverPingJob=null;
-			}
-		}
-		
+
 		checkIfServerAndLoginChanged();
 	
 		
@@ -232,6 +195,7 @@ public class Activator extends AbstractUIPlugin {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
 	 */
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		MeandreLogger.logInfo("Stoping...");
 		plugin = null;
@@ -399,10 +363,6 @@ public class Activator extends AbstractUIPlugin {
 
 	public static String getPluginVersion() {
 		return pluginVersion;
-	}
-
-	public static ClasspathContainerUtils getClasspathContainerUtils() {
-		return classpathContainerUtil;
 	}
 
 	public static String[] getAvailableComponentTypes() {

@@ -77,47 +77,7 @@
       
       
       
-            <objectContribution
-              id="org.meandre.ide.eclipse.component.contribution4"
-              nameFilter="*.zz"
-              objectClass="org.eclipse.core.resources.IFile">
-               <menu
-               label="Meandre Component"
-               path="additions"
-               id="org.meandre.ide.eclipse.component.menu2">
-            		<separator name="group1">
-                 
-           		 </separator>
-       			 </menu>
-               <action
-               label="Compile ZZ script to MAU"
-               class="org.meandre.ide.eclipse.component.popup.actions.CreateMAUAction"
-               menubarPath="org.meandre.ide.eclipse.component.menu2/group1"
-               enablesFor="1"
-               id="org.meandre.ide.eclipse.component.newAction4">
-         </action>
-       </objectContribution>  
       
-          <objectContribution
-              id="org.meandre.ide.eclipse.component.contribution5"
-              nameFilter="*.mau"
-              objectClass="org.eclipse.core.resources.IFile">
-              <menu
-               label="Meandre Component"
-               path="additions"
-               id="org.meandre.ide.eclipse.component.menu2">
-            		<separator name="group1">
-                 
-           		 </separator>
-       			 </menu>
-               <action
-               label="Run MAU as Flow Locally"
-               class="org.meandre.ide.eclipse.component.popup.actions.RunMAUAction"
-               menubarPath="org.meandre.ide.eclipse.component.menu2/group1"
-               enablesFor="1"
-               id="org.meandre.ide.eclipse.component.newAction5">
-         </action>
-       </objectContribution>  
        
      <!--   	  objectClass="java.lang.Object"
       		      ADDED JULY 10th 
@@ -187,20 +147,6 @@
    
    
     <extension
-         point="org.eclipse.ui.views">
-      <category
-            name="Meandre Development"
-            id="org.meandre.ide.eclipse.component">
-      </category>
-      <view
-            name="Meandre Component View"
-            icon="icons/meandreView.gif"
-            category="org.meandre.ide.eclipse.component"
-            class="org.meandre.ide.eclipse.component.views.MeandreComponentView"
-            id="org.meandre.ide.eclipse.component.views.MeandreComponentView">
-      </view>
-   </extension>
-    <extension
           point="org.eclipse.ui.preferencePages">
        <page
              class="org.meandre.ide.eclipse.component.preferences.MeandrePreferencePage"
@@ -236,85 +182,10 @@
 </extension>
 
 
-<extension
-      point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-      targetID="org.eclipse.ui.javaPerspective">
-      <view
-      		relative="org.eclipse.ui.views.TaskList"
-      		visible="true"
-      		relationship="stack"
-      		id="org.meandre.ide.eclipse.component">
-      </view>
-      </perspectiveExtension>
-      
-</extension>
-<extension
-      point="org.eclipse.ui.decorators">
-   <decorator
-         adaptable="true"
-         class="org.meandre.ide.eclipse.component.decorators.ZZFiles"
-         id="org.meandre.ide.eclipse.component.decorators.ZZFiles"
-         label="ZZ-File Decorator"
-         lightweight="true"
-         state="true">
-      <enablement>
-    
-               <objectClass
-                     name="org.eclipse.core.resources.IFile">
-               </objectClass>
-           
-      </enablement>
-   </decorator>
-   
-    <decorator
-         adaptable="true"
-         class="org.meandre.ide.eclipse.component.decorators.MAUFiles"
-         id="org.meandre.ide.eclipse.component.decorators.MAUFiles"
-         label="MAU-File Decorator"
-         lightweight="true"
-         state="true">
-      <enablement>
-                <objectClass
-                     name="org.eclipse.core.resources.IFile">
-               </objectClass>
-      </enablement>
-   </decorator>
-</extension>
     
    
-     <extension
-       point="org.eclipse.jdt.core.classpathContainerInitializer">
-      <classpathContainerInitializer
-          id="org.meandre.MEANDRE_INFRASTRUCTURE"
-          class="org.meandre.ide.eclipse.classpathcontainer.MeandreContainerInitializer"/>
-   </extension>
    
-   <extension 
-       point="org.eclipse.jdt.ui.classpathContainerPage">
-      <classpathContainerPage
-          id="org.meandre.MEANDRE_INFRASTRUCTURE"
-          name="Meandre Infrastructure Container"
-          class="org.meandre.ide.eclipse.classpathcontainer.MeandreContainerPage"/>
-   </extension>  
     
-    <extension point="org.eclipse.ui.newWizards">
-	<category
-	  name="Meandre"
-	  id="org.meandre.ide.eclipse.component">
-    </category>
- 	<wizard
-      name="Meandre Component Project"
-	  icon="icons/meandreView.gif"
-	  category="org.meandre.ide.eclipse.component"
-	  class="org.meandre.ide.eclipse.component.wizard.NewComponentProjectWizard"
-	  project="true"
-	  id="org.meandre.ide.eclipse.new.component.new">
-      <description>Create a new Component Project</description>
-	  <selection class="org.eclipse.core.resources.IResource"/>
-	</wizard>
-	
-  </extension>
     
     
      <extension point="org.eclipse.ui.popupMenus">
