@@ -205,7 +205,7 @@ public class ComponentJarUtils {
 		try {
 			new DepFind().run(cp1, appClasspath, handler);
 		} catch (IOException e) {
-			
+
 			e.printStackTrace();
 		}
 		//	System.out.println("Handler Size: "+handler.getJarList().size());
@@ -233,7 +233,7 @@ public class ComponentJarUtils {
 	 * This function creates a component jar file; that has all the classes the
 	 * component depends upon
 	 * @param claszz
-	 * @param project 
+	 * @param project
 	 *
 	 * @param cp1
 	 * @param appClasspath
@@ -260,7 +260,7 @@ public class ComponentJarUtils {
 				DepHandler.LEVEL_CLASS, componentClass);
 		out.println("After creating DepHandler " + componentClass);
 		findComponentDep(componentClass, outputLocation,handler, Boolean.TRUE,classList);
-		
+
 		if (classList.keySet().size() == 0) {
 			return Boolean.FALSE;
 		}
@@ -339,7 +339,7 @@ public class ComponentJarUtils {
 			className = it.next();
 			fname = className;
 			bi = new BufferedInputStream(new FileInputStream(fname));
-			
+
 			String jarEntry = className.replace(outputLocation+File.separator, "");
 			jarEntry = jarEntry.replace(File.separatorChar, '/');
 
@@ -363,7 +363,7 @@ public class ComponentJarUtils {
 				if(sourceFile.getRawLocation()!=null){
 					String fname=sourceFile.getRawLocation().makeAbsolute().toOSString();
 					bi = new BufferedInputStream(new FileInputStream(fname));
-					String jarEntry = sourceFile.getProjectRelativePath().toOSString();
+					String jarEntry = fname.replace(projectPath + sourcePath, "");
 					jarEntry = jarEntry.replace(File.separatorChar, '/');
 					je = new JarEntry(jarEntry);
 					jo.putNextEntry(je);
@@ -374,23 +374,6 @@ public class ComponentJarUtils {
 					while ((anz = bi.read(buf)) != -1) {
 						jo.write(buf, 0, anz);
 					}
-				}
-			}
-			it= resourceList.iterator();
-			String resourceFile = null;
-			while(it.hasNext()){
-				resourceFile = it.next();
-				bi = new BufferedInputStream(new FileInputStream(resourceFile));
-				String jarEntry =resourceFile.replace(projectPath+File.separator, "");
-				jarEntry=jarEntry.replace(File.separatorChar, '/');
-				je = new JarEntry(jarEntry);
-				jo.putNextEntry(je);
-
-				byte[] buf = new byte[1024];
-				int anz;
-
-				while ((anz = bi.read(buf)) != -1) {
-					jo.write(buf, 0, anz);
 				}
 			}
 		}

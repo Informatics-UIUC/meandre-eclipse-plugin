@@ -38,6 +38,9 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
+import org.meandre.annotations.ComponentNature;
+import org.meandre.annotations.CreateDefaultComponentDescriptor;
+import org.meandre.core.repository.CorruptedDescriptionException;
 import org.meandre.ide.eclipse.component.Activator;
 import org.meandre.ide.eclipse.component.logger.MeandreLogger;
 import org.meandre.ide.eclipse.component.preferences.PreferenceConstants;
@@ -50,10 +53,6 @@ import org.meandre.plugins.bean.ComponentAppletBean;
 import org.meandre.server.MeandreEngineServicesConstants;
 import org.meandre.tools.components.FindComponentDep;
 import org.meandre.tools.components.InstallComponent;
-
-import org.meandre.annotations.ComponentNature;
-import org.meandre.annotations.CreateDefaultComponentDescriptor;
-import org.meandre.core.repository.CorruptedDescriptionException;
 
 
 
@@ -71,8 +70,8 @@ import org.meandre.core.repository.CorruptedDescriptionException;
 public class InstallComponentRunnable implements IRunnableWithProgress {
 
 	String message = null;
-	private ComponentJarUtils componentUtils;
-	private ProjectSourceUtils projectSourceUtils;
+	private final ComponentJarUtils componentUtils;
+	private final ProjectSourceUtils projectSourceUtils;
 
 	private ICompilationUnit unit = null;
 	private IJavaProject project=null;
@@ -117,7 +116,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 		String workspacePath = workspace.getRoot().getLocation().toOSString();
 
 		monitor.worked(2);
-		Thread.sleep(1000);
+		//Thread.sleep(1000);
 
 
 		// list of jar files that should be removed
@@ -147,7 +146,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 		monitor.worked(5);
 		monitor.subTask("Getting jars to filter "+ filterJarList.size());
-		Thread.sleep(1000);
+		//Thread.sleep(1000);
 		String className = null;
 		if(unit==null || project==null){
 			out.println("[Error] could not retrieve the compilation unit.");
@@ -167,7 +166,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 				}
 				out.println("class name is: " + className);
 
-                   
+
 				String complianceLevel=	project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 				if(!complianceLevel.equalsIgnoreCase("1.5")){
 					monitor.worked(100);
@@ -176,7 +175,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 					Thread.sleep(5000);
 					return;
 				}
-				                
+
 
 
 				try {
@@ -233,7 +232,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 
 					URLClassLoader urlClassloader=ProjectClassLoader.getProjectClassLoader(project,hasAspectJ);
-					
+
 					if(urlClassloader==null){
 						out.println("Error: Project Classpath is null...");
 						return;
@@ -265,7 +264,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 					}
 					monitor.worked(10);
 					monitor.subTask("got component project "+ project.getProject().getName());
-					Thread.sleep(1000);
+					//Thread.sleep(1000);
 
 
 
@@ -285,7 +284,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 					monitor.worked(15);
 					monitor.subTask("trying to get component annotation "+ claszz.getName());
-					Thread.sleep(1000);
+					//Thread.sleep(1000);
 
 
 
@@ -320,7 +319,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						}
 						monitor.worked(25);
 						monitor.subTask("got project classpath jar libraries "+ alist.size());
-						Thread.sleep(1000);
+						//Thread.sleep(1000);
 
 
 
@@ -358,8 +357,8 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 								return;
 							}
 						}
-						
-						
+
+
 						boolean componentJarCreated= Boolean.FALSE;
 						String fileName = componentName.toLowerCase();
 						fileName = fileName.replaceAll("\\s+", "-");
@@ -401,7 +400,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 						monitor.worked(35);
 						monitor.subTask("created component jar "+ componentJar);
-						Thread.sleep(1000);
+						//Thread.sleep(1000);
 
 						out.println("Trying to find applets");
 						// now create the applets if needed
@@ -495,7 +494,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						}
 						monitor.worked(65);
 						monitor.subTask("found "+ dlist.size() + " jar dependencies.");
-						Thread.sleep(1000);
+						//Thread.sleep(1000);
 
 
 						while (it1.hasNext()) {
@@ -527,17 +526,17 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 							monitor.worked(75);
 							monitor.subTask("created component rdf descriptor in "+ tmpFolder);
-							Thread.sleep(1000);
+							//Thread.sleep(1000);
 
 						if(monitor.isCanceled()){
 							return;
 						}
 						monitor.worked(77);
 						monitor.subTask("getting ready to upload components");
-						Thread.sleep(1000);
+						//Thread.sleep(1000);
 
 						String url = prefs.getString(PreferenceConstants.P_SERVER);
-						
+
 						int port = prefs.getInt(PreferenceConstants.P_PORT);
 						if (url == null) {
 							out.println("Missing Server location.");
@@ -557,7 +556,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						if (url.endsWith("/")) {
 							url = url.substring(0, url.length() - 1);
 						}
-						
+
 						String jarInfoUrl=null;
 
 						if(Activator.getServerVersion().startsWith("1.3")){
@@ -573,32 +572,32 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 								+ port + "/"
 								+ MeandreEngineServicesConstants.ADD_REPOSITORY_URL_1_4;
 							}
-						
+
 						String port_s = prefs.getString(PreferenceConstants.P_PORT);
 						String username = prefs.getString(PreferenceConstants.P_LOGIN);
 						String password = prefs.getString(PreferenceConstants.P_PASSWORD);
 						boolean embed = prefs.getBoolean(PreferenceConstants.P_EMBED);
 						boolean overwrite = prefs.getBoolean(PreferenceConstants.P_OVERWRITE);
 						boolean uploadOnlyChangedJars = prefs.getBoolean(PreferenceConstants.P_SEND_JARS_THAT_CHANGED);
-						
+
 
 						boolean dump = Boolean.FALSE;
 
 						InstallComponent ic = new InstallComponent(url, jarInfoUrl,port,username, password);
 						ic.init(dlist);
-						String[] jararray = (String[]) dlist.toArray(new String[0]);
+						String[] jararray = dlist.toArray(new String[0]);
 						System.out.println("Jar array is: " + jararray.length);
 						out.println("Uploading " + jararray.length+ " files. Please wait...");
-								
+
 						if(monitor.isCanceled()){
 							return;
 						}
 						monitor.worked(80);
 						monitor.subTask("Uploading component " + descriptorFileName +" and #" +jararray.length + " jars" );
-						Thread.sleep(1000);
+						//Thread.sleep(1000);
 
 						ic.uploadComponent(new File(descriptorFileName),overwrite, dump, embed,uploadOnlyChangedJars, jararray);
-								
+
 						monitor.worked(100);
 						monitor.done();
 
@@ -617,7 +616,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					Activator.repositoryJob.schedule();
+					//Activator.repositoryJob.schedule();
 				}
 }
 
