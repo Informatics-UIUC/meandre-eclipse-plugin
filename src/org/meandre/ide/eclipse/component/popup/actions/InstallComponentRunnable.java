@@ -105,6 +105,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 
 		monitor.subTask("getting preferences");
 		String tmpFolder = System.getProperty("java.io.tmpdir");
+		if (!tmpFolder.endsWith(File.separator)) tmpFolder += File.separator;
 		Preferences prefs = Activator.getDefault().getPluginPreferences();
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		String baseFolder = workspace.getRoot().getLocation().toPortableString();
@@ -362,7 +363,9 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 						boolean componentJarCreated= Boolean.FALSE;
 						String fileName = componentName.toLowerCase();
 						fileName = fileName.replaceAll("\\s+", "-");
-						String componentJar = System.getProperty("java.io.tmpdir")+File.separator+claszz.getName()+"-"+fileName+".jar";
+						String tmpDir = System.getProperty("java.io.tmpdir");
+						if (!tmpDir.endsWith(File.separator)) tmpDir += File.separator;
+						String componentJar = tmpDir+claszz.getName()+"-"+fileName+".jar";
 						out.println("creating component jar file: " + componentJar);
 						//ArrayList<IFile> sourceList = this.projectSourceUtils.getSourceList(outputLocation, classList);
 						try {
@@ -639,7 +642,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 			e.printStackTrace();
 		}
 		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(itype.getPath());
-		String ss=file.getFullPath().toPortableString();
+		String ss=file.getFullPath().toOSString();
 		ss = ss.replace(".java", "");
 		String tmp=ss.replace(projectPath,"");
 		String componentPackagePath = componentEntity.replace('.', File.separatorChar);
@@ -663,7 +666,7 @@ public class InstallComponentRunnable implements IRunnableWithProgress {
 	            dirPath = componentDescriptorFolder;
 	        } else {
 	        	if(packagePath){
-	            dirPath = componentDescriptorFolder + File.separator +
+	            dirPath = componentDescriptorFolder +
 	                     className.substring(0, className.lastIndexOf("."));
 	        	}else{
 	        	dirPath = componentDescriptorFolder;

@@ -187,6 +187,7 @@ public class InstallComponent {
 		int count = 4;
 		String infoUrl =this.meandreJarInfoUrl;
 		String tmpFolder = System.getProperty("java.io.tmpdir");
+		if (!tmpFolder.endsWith(File.separator)) tmpFolder += File.separator;
 		
 		for (int i = 0; i < numJars; i++) {
 			jarFile = appJarList.get(jarDependencies[i]);
@@ -202,7 +203,7 @@ public class InstallComponent {
 				if(serverSideFileName!=null){
 				//System.out.println("NOW creating and SENDING 0 BYTE FILE and SENDING IT");
 				 // create a file with 0 bytes and send that instead of the new file	
-				File file = new File(tmpFolder+File.separator+serverSideFileName);
+				File file = new File(tmpFolder+serverSideFileName);
 				try {
 					file.createNewFile();
 				} catch (IOException e1) {

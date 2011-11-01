@@ -387,6 +387,7 @@ public class ComponentJarUtils {
 			resourceFile = it.next();
 			bi = new BufferedInputStream(new FileInputStream(resourceFile));
 			String jarEntry =resourceFile.replace(projectPath +sourcePath, "");
+			jarEntry = jarEntry.replace(File.separatorChar, '/');
 			je = new JarEntry(jarEntry);
 			jo.putNextEntry(je);
 			byte[] buf = new byte[1024];
