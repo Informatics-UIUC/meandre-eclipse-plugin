@@ -1,9 +1,9 @@
 /** Copyright (c) 2008, Board of Trustees-University of Illinois.
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html 
+ * http://www.eclipse.org/legal/epl-v10.html
  */
 
 package org.meandre.ide.eclipse.component;
@@ -26,6 +26,8 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.meandre.core.repository.QueryableRepository;
 import org.meandre.ide.eclipse.component.logger.MeandreLogger;
 import org.meandre.ide.eclipse.component.preferences.PreferenceConstants;
@@ -44,12 +46,12 @@ public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.meandre.ide.eclipse.component";
-	
+
 	public static final String CONSOLE_NAME ="Meandre Component Console";
 
 	// The shared instance
 	private static Activator plugin;
-	
+
 	public static final String  PING_JOB = "org.meandre.ide.eclipse.component.jobs.ServerPingJob";
 	public static final String  GET_REP_JOB = "org.meandre.ide.eclipse.component.jobs.GetRepositoryJob";
 	public static final String JAVA_EDITOR_ID = "org.eclipse.jdt.ui.CompilationUnitEditor";
@@ -60,27 +62,27 @@ public class Activator extends AbstractUIPlugin {
 
 	public static final String MAU_EXTN = "mau";
 	public static final String ZZ_EXTN = "zz";
-	
-	
+
+
 	private static MeandrePluginProxy meandreProxy = null;
 	private static QueryableRepository repository=null;
 	private static FileSystemUtils fileSystemUtil = null;
 	public static String meandreServerVersion=null;
-	
+
 	public static boolean isConnected = Boolean.FALSE;
-	
+
 	static HashMap<String,JarObject> componentInfoHashMap = new HashMap<String,JarObject>(10);
 	private static String pluginVersion="";
 	private static String pluginName="";
 	private IWorkspace workspace;
-	
+
 	// location of the source code template
 	private static String TEMPLATE_LOC = "server"+ File.separator + "lib"+ File.separator + "_VERSION_"+ File.separator + "templates";
-	
-	
 
-	
-	
+
+
+
+
 	/**
 	 * The constructor
 	 */
@@ -100,12 +102,12 @@ public class Activator extends AbstractUIPlugin {
 		pluginVersion=this.getBundle().getHeaders().get("Bundle-Version");
 		pluginName = plugin.getBundle().getSymbolicName();
 		workspace = ResourcesPlugin.getWorkspace();
-		 
-		final Preferences.IPropertyChangeListener 
+
+		final Preferences.IPropertyChangeListener
 		propertyChangeListener =
 			new Preferences.IPropertyChangeListener(){
 			public void propertyChange(PropertyChangeEvent event){
-			update();	
+			update();
 			}
 
 		};
@@ -114,35 +116,36 @@ public class Activator extends AbstractUIPlugin {
 		String username=this.getPluginPreferences().getString(PreferenceConstants.P_LOGIN);
 		String password=this.getPluginPreferences().getString(PreferenceConstants.P_PASSWORD);
 		String serverUrl=server;
-	
+
 		meandreProxy = new MeandrePluginProxy(username,password,serverUrl,port);
 		meandreProxy.update(username,password,serverUrl,port);
 		try{
-		meandreServerVersion=meandreProxy.getServerVersion();
+			JSONObject serverVersion = meandreProxy.getServerVersion();
+			meandreServerVersion=serverVersion.getString("version");
 		}catch (Exception ex){
-			MeandreLogger.logInfo("Could not get server version: " + ex.getMessage());		
+			MeandreLogger.logInfo("Could not get server version: " + ex.getMessage());
 		}
 		fileSystemUtil = new FileSystemUtils();
-		
+
 		MeandreLogger.logInfo("Starting MeandreIde Component: " +  this.getBundle().getHeaders().get("Bundle-Version") + "  version");
 		//repositoryJob.schedule();
-		
+
 		this.getPluginPreferences().addPropertyChangeListener(propertyChangeListener);
 		//System.out.println("Time in the Activator: " + (System.currentTimeMillis()-start));
-	
-		
+
+
 		//System.out.println("  number of libraries: " + serverLibs.list().length);
 	}
 
 	protected void update() {
 		boolean choice=this.getPluginPreferences().getBoolean(PreferenceConstants.P_PING_SERVER);
 		// we are not pinging the server ever
-		
+
 
 		checkIfServerAndLoginChanged();
-	
-		
-		
+
+
+
 	}
 
 	private void checkIfServerAndLoginChanged() {
@@ -150,13 +153,13 @@ public class Activator extends AbstractUIPlugin {
 		String serverUrl=meandreProxy.getServerUrl();
 		String login = meandreProxy.getLogin();
 		String password =meandreProxy.getPassword();
-		
-		
+
+
 		String server_new=this.getPluginPreferences().getString(PreferenceConstants.P_SERVER);
 		int port_new = this.getPluginPreferences().getInt(PreferenceConstants.P_PORT);
 		String username_new=this.getPluginPreferences().getString(PreferenceConstants.P_LOGIN);
 		String password_new=this.getPluginPreferences().getString(PreferenceConstants.P_PASSWORD);
-		
+
 		/*
 		URL url=null;
 		if(!server_new.startsWith("http")){
@@ -173,22 +176,28 @@ public class Activator extends AbstractUIPlugin {
 			serverUrl_new = server_new +":"+port_new+"/";
 		}
 		*/
-		if(!(server_new+":"+port_new+"/").equalsIgnoreCase(serverUrl) || 
+		if(!(server_new+":"+port_new+"/").equalsIgnoreCase(serverUrl) ||
 				!username_new.equals(login) ||
 				!password_new.equals(password)){
-				updateProxy= Boolean.TRUE;	
+				updateProxy= Boolean.TRUE;
 		}
-		
-		
+
+
 		if(updateProxy){
 			meandreProxy.close();
 			System.out.println("Updating the server information.");
 			MeandreLogger.logError("");
 			meandreProxy.update(login, password, server_new, port_new);
-			meandreServerVersion=meandreProxy.getServerVersion();
+			JSONObject serverVersion = meandreProxy.getServerVersion();
+			try {
+				meandreServerVersion=serverVersion.getString("version");
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-		
-		
+
+
 	}
 
 	/*
@@ -200,7 +209,7 @@ public class Activator extends AbstractUIPlugin {
 		MeandreLogger.logInfo("Stoping...");
 		plugin = null;
 		super.stop(context);
-		
+
 	}
 
 	/**
@@ -222,12 +231,12 @@ public class Activator extends AbstractUIPlugin {
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
-	
+
 	 public static MessageConsole findConsole(String name) {
 	      ConsolePlugin plugin = ConsolePlugin.getDefault();
 	      IConsoleManager conMan = plugin.getConsoleManager();
 	      IConsole[] existing = conMan.getConsoles();
-	      
+
 	      for (int i = 0; i < existing.length; i++){
 	         if (name.equals(existing[i].getName())){
 	        	return (MessageConsole)existing[i];
@@ -235,7 +244,7 @@ public class Activator extends AbstractUIPlugin {
 	      }
 	      //no console found, so create a new one
 	      MessageConsole myConsole = new MessageConsole(name, null);
-	      
+
 	      conMan.addConsoles(new IConsole[]{myConsole});
 	      return myConsole;
 	   }
@@ -243,7 +252,7 @@ public class Activator extends AbstractUIPlugin {
 	public static synchronized void setRepository(QueryableRepository qr) {
 		repository= qr;
 	}
-	
+
 	public static QueryableRepository getQueryableRepository(){
 		return repository;
 	}
@@ -264,7 +273,7 @@ public class Activator extends AbstractUIPlugin {
 			componentInfoHashMap.remove(jarLocation);
 		}
 		componentInfoHashMap.put(jarLocation,getComponentObject(componentJarInfo));
-		
+
 	}
 
 	private static JarObject getComponentObject(String componentJarInfo) {
@@ -274,7 +283,7 @@ public class Activator extends AbstractUIPlugin {
 		if(componentJarInfo.trim().length()==0){
 			return null;
 		}
-		
+
 		StringTokenizer stok = new StringTokenizer(componentJarInfo,"|");
 		HashMap<String,String> hm = new HashMap<String,String>(7);
 		while(stok.hasMoreTokens()){
@@ -283,43 +292,43 @@ public class Activator extends AbstractUIPlugin {
 			hm.put(split[0], split[1]);
 			}
 		}
-	
+
 		JarObject jarObject = new JarObject();
 		boolean isComponent = Boolean.FALSE;
 		try{
 			isComponent = new Boolean(hm.get("isComponent"));
 		}catch(Exception ex){
-			
+
 		}
 		jarObject.setComponent(isComponent);
 		boolean hasSource = Boolean.FALSE;
 		try{
 			hasSource = new Boolean(hm.get("hasSource"));
 		}catch(Exception ex){
-			
+
 		}
-		
+
 		jarObject.setHasSource(hasSource);
-		
+
 		Long lastModified = 0l;
 		try{
 			lastModified = new Long(hm.get("lastModified"));
 		}catch(Exception ex){
-			
+
 		}
 		jarObject.setLastModified(lastModified);
 
 		jarObject.setMd5(hm.get("md5"));
 		jarObject.setName(hm.get("name"));
-		
+
 		Long size= 0l;
 		try{
 			size = new Long(hm.get("size"));
 		}catch(Exception ex){
-			
+
 		}
 		jarObject.setSize(size);
-	
+
 		Iterator<String> it = hm.keySet().iterator();
 		String key=null;
 		while(it.hasNext()){
@@ -332,21 +341,21 @@ public class Activator extends AbstractUIPlugin {
 				jarObject.addOutputDataType(key.substring(7), hm.get(key));
 			}
 		}
-		
-		
+
+
 		String interfaceList = hm.get("interfaceList");
-		
+
 		if(interfaceList!=null){
-		StringTokenizer stok1 = new StringTokenizer(interfaceList,",");	
+		StringTokenizer stok1 = new StringTokenizer(interfaceList,",");
 		while(stok1.hasMoreTokens()){
 			jarObject.addInterface(stok1.nextToken());
 		}
 		}
-		
-		
-		
+
+
+
 		return jarObject;
-		
+
 	}
 
 	public static JarObject getComponentInfo(String jarLocation) {
@@ -371,19 +380,19 @@ public class Activator extends AbstractUIPlugin {
 
 	public static File getTemplate(String componentType,
 			String meandreCoreVersion) {
-	 
+
 		String fileName = componentType+".java";
-		String version = getVersion(meandreCoreVersion); 
+		String version = getVersion(meandreCoreVersion);
 		version = version.replace('.', '_');
 		String templateDir = TEMPLATE_LOC.replace("_VERSION_",version);
 		String filePath =  templateDir + File.separator + fileName;
 		// converts the template location to the path in the plugin
 		String realPath=FileSystemUtils.findDirectory(PLUGIN_ID, filePath);
-		
+
 		return new File(realPath);
 	}
 
-	
+
 	  public static File getRawLocationFile(IPath simplePath) {
 	        IResource resource = ResourcesPlugin.getWorkspace().getRoot().findMember(simplePath);
 	        File file = null;
@@ -396,8 +405,8 @@ public class Activator extends AbstractUIPlugin {
 	        return file;
 	    }
 
-	
-	  
+
+
 	  public static String getVersion(String name){
 		  StringTokenizer stok = new StringTokenizer(name);
 		  String version = name;
@@ -406,11 +415,11 @@ public class Activator extends AbstractUIPlugin {
 		  }
 		  return version;
 	  }
-	  
+
 	    public IWorkspace getWorkspace() {
 	        return workspace;
 	    }
-	    
+
 	    public IWorkbenchPage getActivePage() {
 	        return getWorkbench().getActiveWorkbenchWindow().getActivePage();
 	    }
@@ -418,7 +427,7 @@ public class Activator extends AbstractUIPlugin {
 		public static String getServerVersion() {
 			return meandreServerVersion;
 		}
-	    
-	
-	
+
+
+
 }
